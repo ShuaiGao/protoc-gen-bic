@@ -20,7 +20,7 @@ import (
 
 var (
 	ImportPath = "import"
-	VERSION    = "1.0.0"
+	VERSION    = "1.0.1"
 )
 
 // SupportedFeatures reports the set of supported protobuf language features.
@@ -310,7 +310,7 @@ func parseRpcLeading(comm string, funcName string) (param HTTPParam) {
 		param.Permission = strings.TrimSpace(string(objs[1]))
 	}
 
-	summaryPermission := regexp.MustCompile(`(?i)@summary\s*:(.*)[@$]`)
+	summaryPermission := regexp.MustCompile(`(?i)@summary\s*:\s*([^@$]*)`)
 	summary := summaryPermission.FindSubmatch([]byte(comm))
 	if len(summary) > 1 {
 		param.Summary = strings.TrimSpace(string(summary[1]))
