@@ -244,6 +244,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 
 const StringType = "string"
 const IntType = "int"
+const UIntType = "uint"
 const Int64Type = "int64"
 
 type URLParam struct {
@@ -292,7 +293,7 @@ func parseRpcLeading(comm string, funcName string) (param HTTPParam) {
 			pType = StringType
 		} else if pType == "str" || pType == StringType {
 			pType = StringType
-		} else if pType != IntType && pType != Int64Type {
+		} else if pType != IntType && pType != Int64Type && pType != UIntType {
 			fmt.Fprintf(os.Stderr, "path param only support int and string/str, but get "+pType)
 			os.Exit(0)
 		}
@@ -364,10 +365,14 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			if httpParam.MethodName == "POST" {
 				query = "body"
 			}
+			kindName := ff.Desc.Kind().String()
+			if ff.Desc.IsList() {
+				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
+			}
 			if len(trailing) > 2 {
-				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", ff.Desc.Kind(), ` true "`, strings.TrimSpace(ff.Comments.Trailing.String()[2:]), `"`)
+				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, ` true "`, strings.TrimSpace(ff.Comments.Trailing.String()[2:]), `"`)
 			} else {
-				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", ff.Desc.Kind(), ` true "参数无注释"`)
+				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, ` true "参数无注释"`)
 			}
 		}
 		g.P("// @Success 200 {object} ", value.Output.GoIdent.GoName)
@@ -385,13 +390,20 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		if len(httpParam.UrlParamList) > 0 {
 			var paramList []string
 			for _, p := range httpParam.UrlParamList {
-				if p.pType == IntType || p.pType == Int64Type {
+				if p.pType == IntType || p.pType == Int64Type || p.pType == UIntType {
 					if p.pType == IntType {
 						g.P(p.pName, `, err := strconv.Atoi(ctx.Param("`, p.pName, `"))`)
+						g.P("if err != nil {")
+						paramList = append(paramList, p.pName)
+					} else if p.pType == UIntType {
+						paramList = append(paramList, fmt.Sprintf("uint(%s)", p.pName))
+						g.P(p.pName, `, err := strconv.Atoi(ctx.Param("`, p.pName, `"))`)
+						g.P("if err != nil || ", p.pName, " < 0", "{")
 					} else {
 						g.P(p.pName, `, err := strconv.ParseInt(ctx.Param("`, p.pName, `"), 10, 0)`)
+						g.P("if err != nil {")
+						paramList = append(paramList, p.pName)
 					}
-					g.P("if err != nil {")
 					g.P("    ctx.JSON(http.StatusBadRequest, gen.Response{")
 					g.P("        Code: int(ErrCode_param_error),")
 					g.P(`        Detail: "param `, p.pName, ` should be int",`)
@@ -399,8 +411,8 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 					g.P("}")
 				} else if p.pType == StringType {
 					g.P(p.pName, ` := ctx.Param("`, p.pName, `")`)
+					paramList = append(paramList, p.pName)
 				}
-				paramList = append(paramList, p.pName)
 			}
 			g.P("rsp, code := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 		} else {
