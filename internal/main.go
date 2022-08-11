@@ -149,7 +149,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 				needImportPermission = true
 			}
 			for _, param := range httpParam.UrlParamList {
-				if param.pType == IntType || param.pType == Int64Type {
+				if param.pType == IntType || param.pType == Int64Type || param.pType == UIntType {
 					needImportStrconv = true
 				}
 			}
@@ -366,7 +366,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				query = "body"
 			}
 			kindName := ff.Desc.Kind().String()
-			if ff.Desc.IsList() {
+			if ff.Desc.IsList() && ff.Desc.Message() != nil {
 				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
 			}
 			if len(trailing) > 2 {
