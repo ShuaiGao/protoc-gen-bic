@@ -382,7 +382,11 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		if value.Input.GoIdent.GoName != "CommonNil" {
 			req = ",req"
 			g.P("  req := &", value.Input.GoIdent, "{}")
-			g.P("  if ok := ctx.Bind(req); ok != nil {")
+			if httpParam.MethodName == "GET" {
+				g.P("  if err := ctx.ShouldBindQuery(req); err != nil {")
+			} else {
+				g.P("  if err := ctx.Bind(req); err != nil {")
+			}
 			g.P(` 	  ctx.JSON(http.StatusOK, gen.Response{400, " request error", nil})`)
 			g.P("     return")
 			g.P("   }")
