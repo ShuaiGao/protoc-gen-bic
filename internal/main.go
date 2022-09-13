@@ -158,12 +158,14 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	if needImportPermission {
 		g.P(`"ad-manager/middleware/permission"`)
 	}
+
+	g.P(`"ad-manager/pkg/gen"`)
+	g.P(`"net/http"`)
+
 	if needImportStrconv {
 		g.P(`"strconv"`)
 	}
 
-	g.P(`"ad-manager/pkg/gen"`)
-	g.P(`"net/http"`)
 	paths := genImportService(gen, file, g, omitempty)
 	for _, path := range paths {
 		g.P(`"`, path, `"`)
@@ -342,6 +344,34 @@ func JSONSnakeCase(s string) string {
 	}
 	return string(b)
 }
+
+func fieldRequired(f *protogen.Field) bool {
+	//	paramRe := regexp.MustCompile(`/<?(\w*):(\w+)>?`)
+	//	re := regexp.MustCompile(`(?i)@url\s*:\s*(/.*/)`)
+	//	urls := re.FindSubmatch([]byte(f.Comments.Leading.String()))
+	//	if len(urls) > 1 {
+	//		param.Url = strings.TrimSpace(string(urls[1]))
+	//	}
+	//	matchList := paramRe.FindAllSubmatch([]byte(f.Comments.Leading.String()), -1)
+	//	for _, match := range matchList {
+	//		pName := string(match[2])
+	//		pType := string(match[1])
+	//		if pType == "" {
+	//			pType = StringType
+	//		} else if pType == "str" || pType == StringType {
+	//			pType = StringType
+	//		} else if pType != IntType && pType != Int64Type && pType != UIntType {
+	//			fmt.Fprintf(os.Stderr, "path param only support int and string/str, but get "+pType)
+	//			os.Exit(0)
+	//		}
+	//		param.UrlParamList = append(param.UrlParamList, URLParam{
+	//			pName: pName,
+	//			pType: pType,
+	//		})
+	//	}
+	return strings.Contains(f.Comments.Leading.String(), "required")
+}
+
 func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P("//")
@@ -355,6 +385,8 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		} else if len(leading) > 2 {
 			g.P("// @Summary ", strings.TrimSpace(leading[2:]))
 		}
+		tagsName := strings.Replace(service.GoName, "Service", "-Service", 1)
+		g.P("// @Tags ", tagsName)
 		g.P("// @Produce json")
 		for _, p := range httpParam.UrlParamList {
 			g.P("// @Param ", p.pName, " path ", p.pType, " true ", `"some id"`)
@@ -370,12 +402,14 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
 			}
 			if len(trailing) > 2 {
-				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, ` true "`, strings.TrimSpace(ff.Comments.Trailing.String()[2:]), `"`)
+				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, " ", fieldRequired(ff), ` "`, strings.TrimSpace(ff.Comments.Trailing.String()[2:]), `"`)
 			} else {
-				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, ` true "参数无注释"`)
+				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, " ", fieldRequired(ff), ` "参数无注释"`)
 			}
 		}
 		g.P("// @Success 200 {object} ", value.Output.GoIdent.GoName)
+		g.P(`// @Failure 401 {string} string "header need Authorization data"`)
+		g.P(`// @Failure 403 {string} string "no api permission or no obj permission"`)
 		g.P("// @Router ", httpParam.Url, " [", httpParam.MethodName, "]")
 		g.P("func (x *x_", service.GoName, ")", value.GoName, "(ctx *gin.Context)", "{")
 		req := ""
@@ -390,6 +424,11 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			g.P(` 	  ctx.JSON(http.StatusOK, gen.Response{400, " request error", nil})`)
 			g.P("     return")
 			g.P("   }")
+
+			g.P("if err := gen.Validate.Struct(req); err != nil {")
+			g.P(` 	  ctx.JSON(http.StatusOK, gen.Response{400, " request param validator error", nil})`)
+			g.P("     return")
+			g.P("}")
 		}
 		if len(httpParam.UrlParamList) > 0 {
 			var paramList []string
