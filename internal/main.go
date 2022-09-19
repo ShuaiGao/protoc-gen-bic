@@ -398,7 +398,9 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				query = "body"
 			}
 			kindName := ff.Desc.Kind().String()
-			if ff.Desc.IsList() && ff.Desc.Message() != nil {
+			if ff.Enum != nil {
+				kindName = string(ff.Enum.Desc.Name())
+			} else if ff.Desc.IsList() && ff.Desc.Message() != nil {
 				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
 			}
 			if len(trailing) > 2 {
@@ -425,10 +427,10 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			g.P("     return")
 			g.P("   }")
 
-			g.P("if err := gen.Validate.Struct(req); err != nil {")
-			g.P(` 	  ctx.JSON(http.StatusOK, gen.Response{400, " request param validator error", nil})`)
-			g.P("     return")
-			g.P("}")
+			//g.P("if err := gen.Validate.Struct(req); err != nil {")
+			//g.P(` 	  ctx.JSON(http.StatusOK, gen.Response{400, " request param validator error", nil})`)
+			//g.P("     return")
+			//g.P("}")
 		}
 		if len(httpParam.UrlParamList) > 0 {
 			var paramList []string
