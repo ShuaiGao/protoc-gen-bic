@@ -25,6 +25,8 @@ func main() {
 		plugins = flags.String("plugins", "", "deprecated option")
 	)
 
+	s := flags.String("ts_dir", "", "ts文件生成目录")
+	flag.Parse()
 	protogen.Options{
 		ParamFunc: flags.Set,
 	}.Run(func(gen *protogen.Plugin) error {
@@ -34,6 +36,9 @@ func main() {
 		for _, f := range gen.Files {
 			if f.Generate {
 				internal.GenerateFile(gen, f)
+				if len(*s) > 0 {
+					internal.GenerateTsFile(gen, f, *s)
+				}
 			}
 		}
 		gen.SupportedFeatures = internal.SupportedFeatures
