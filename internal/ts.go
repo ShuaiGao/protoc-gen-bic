@@ -81,10 +81,10 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 		if value.Input.GoIdent.GoName != "CommonNil" {
 			if httpParam.MethodName == "GET" {
 				getFlag = true
-				URLParamStr = append(URLParamStr, "params: http."+value.Input.GoIdent.GoName)
+				URLParamStr = append(URLParamStr, "params: http.I"+value.Input.GoIdent.GoName)
 			} else {
 				postFlag = true
-				URLParamStr = append(URLParamStr, "data: http."+value.Input.GoIdent.GoName)
+				URLParamStr = append(URLParamStr, "data: http.I"+value.Input.GoIdent.GoName)
 			}
 		}
 		if len(URLParamStr) > 0 {
