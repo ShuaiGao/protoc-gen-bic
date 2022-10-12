@@ -401,7 +401,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		for _, ff := range value.Input.Fields {
 			trailing := ff.Comments.Trailing.String()
 			query := "query"
-			if httpParam.MethodName == "POST" {
+			if httpParam.MethodName == "POST" || httpParam.MethodName == "PATCH" {
 				query = "body"
 			}
 			kindName := ff.Desc.Kind().String()
