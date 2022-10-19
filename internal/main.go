@@ -275,8 +275,10 @@ func parseRpcLeading(comm string, funcName string) (param HTTPParam) {
 			param.MethodName = m
 			break
 		}
-		// 从注释中查找
-		matched, err = regexp.MatchString(`(?i)@method\s*:\s*`+m, comm)
+	}
+	// 优先使用 method标注
+	for _, m := range supportMethods {
+		matched, err := regexp.MatchString(`(?i)@method\s*:\s*`+m, comm)
 		if err == nil && matched {
 			param.MethodName = m
 			break
@@ -409,6 +411,14 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				kindName = string(ff.Enum.Desc.Name())
 			} else if ff.Desc.IsList() && ff.Desc.Message() != nil {
 				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
+			}
+			if ff.Desc.IsList() {
+				if ff.Desc.Enum() != nil {
+					kindName = "int32"
+				}
+				if !strings.HasPrefix(kindName, "[]") {
+					kindName = "[]" + kindName
+				}
 			}
 			if len(trailing) > 2 {
 				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, " ", fieldRequired(ff), ` "`, strings.TrimSpace(ff.Comments.Trailing.String()[2:]), `"`)
