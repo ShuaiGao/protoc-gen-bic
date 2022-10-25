@@ -20,11 +20,13 @@ import (
 
 var (
 	ImportPath = "import"
-	VERSION    = "1.1.0"
+	VERSION    = "1.1.2"
 )
 
 // SupportedFeatures reports the set of supported protobuf language features.
 var SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
+var ResponsePkg string
+var PermissionPkg string
 
 // GenerateFile generates the contents of a .pb.go file.
 func GenerateFile(gen *protogen.Plugin, file *protogen.File) *protogen.GeneratedFile {
@@ -156,10 +158,10 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 		}
 	}
 	if needImportPermission {
-		g.P(`"ad-manager/middleware/permission"`)
+		g.P(`"`, PermissionPkg, `"`)
 	}
 
-	g.P(`"ad-manager/pkg/gen"`)
+	g.P(`"`, ResponsePkg, `"`)
 	g.P(`"net/http"`)
 
 	if needImportStrconv {

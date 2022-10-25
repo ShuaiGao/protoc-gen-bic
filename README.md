@@ -21,23 +21,64 @@ go install github.com/ShuaiGao/protoc-gen-bic@latest
 
 ## 构建一个服务
 
-参见示例
+*可参见example目录下示例*
 
-> 所有的自定义代码都是通过注释读取的。
+1. 定义proto
 
-- 自定义组中间件
-> 每一个service对应gin都是一个组，定义组路由只需要使用`@middle:`关键字即可，value是对应的方法
-- 导入项目包
-> 在service中定义 `@import` 可以连续定义多个导入包
+```protobuf
+syntax = "proto3";
+package http;
+option go_package = "gen/api";
 
-- 定义接口请求
+message RequestUsers{
+  // @gotags: form:"page"
+  uint32 page = 1; // 页码
+  // @gotags: form:"page_size"
+  uint32 page_size = 2; // 每页数量
+}
 
-> 在每个rpc接口中,自定义请求方法 `@method` 即可目前支持GET，POST，ANY 不区分大小写
+message User{
+  uint32 id = 1; // 主键ID
+  string username = 2; // 用户名
+  string email = 3; // 邮箱
+}
 
-- 定义接口中间件
-> 在接口注释中 `@middle` 即可定义自定义和gin中间件
+message ResponseUsers{
+  repeated User data_list = 1;
+}
 
-- 如何自定义组路由
+message RequestNil{ }
+message ResponseNil{ }
 
-> 在service 定义`@root`即可
+service user_service{
+  // @Summary: 获取用户列表 @url:/v1/users/ @method:Get
+  rpc GetUsers(RequestUsers) returns (ResponseUsers);
+  // @Summary: 添加用户 @url:/v1/users/ @method:Post
+  rpc PostUsers(User) returns (ResponseNil);
+  // @Summary: 获取用户详情 @url:/v1/users/<uint:id>/ @method:Get
+  rpc GetUserInfo(RequestNil) returns (User);
+}
+```
 
+2. 执行命令，可参见gen.sh 文件
+
+在 example目录下执行下面命令
+
+```shell
+protoc --go_out=./ proto/*.proto --proto_path=proto --bic_out=response_pkg=protoc-gen-bic/example/gen:.
+```
+ 
+命令解析:
+
+该命令指定了参数 response_pkg = protoc-gen-bic/example/gen。该参数将用于填充包含返回消息结构`Response`所在的包路径，即填充对应的import路径.
+
+Response的定义如下：
+
+```go
+type Response struct {
+    Code   int         `json:"code"`
+    Detail string      `json:"detail"`
+    Data   interface{} `json:"data"`
+}
+```
+   

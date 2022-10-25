@@ -26,6 +26,8 @@ func main() {
 	)
 
 	s := flags.String("ts_dir", "", "ts文件生成目录")
+	responsePKG := flags.String("response_pkg", "", "返回消息通用消息头")
+	permissionPKG := flags.String("permission_pkg", "", "权限校验包名")
 	flag.Parse()
 	protogen.Options{
 		ParamFunc: flags.Set,
@@ -35,6 +37,12 @@ func main() {
 		}
 		for _, f := range gen.Files {
 			if f.Generate {
+				if len(*responsePKG) > 0 {
+					internal.ResponsePkg = *responsePKG
+				}
+				if len(*permissionPKG) > 0 {
+					internal.PermissionPkg = *permissionPKG
+				}
 				internal.GenerateFile(gen, f)
 				if len(*s) > 0 {
 					internal.GenerateTsFile(gen, f, *s)
