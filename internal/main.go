@@ -20,12 +20,11 @@ import (
 
 var (
 	ImportPath = "import"
-	VERSION    = "1.1.2"
+	VERSION    = "1.1.3"
 )
 
 // SupportedFeatures reports the set of supported protobuf language features.
 var SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
-var ResponsePkg string
 var PermissionPkg string
 
 // GenerateFile generates the contents of a .pb.go file.
@@ -161,7 +160,6 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 		g.P(`"`, PermissionPkg, `"`)
 	}
 
-	g.P(`"`, ResponsePkg, `"`)
 	g.P(`"net/http"`)
 
 	if needImportStrconv {
@@ -447,7 +445,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			} else {
 				g.P("  if err := ctx.Bind(req); err != nil {")
 			}
-			g.P(` 	  ctx.JSON(http.StatusOK, gen.Response{400, " request error", nil})`)
+			g.P(` 	  ctx.JSON(http.StatusOK, gin.H{"code": 400, "detail":" request error"})`)
 			g.P("     return")
 			g.P("   }")
 
@@ -473,9 +471,9 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 						g.P("if err != nil {")
 						paramList = append(paramList, p.pName)
 					}
-					g.P("    ctx.JSON(http.StatusBadRequest, gen.Response{")
-					g.P("        Code: int(ErrCode_param_error),")
-					g.P(`        Detail: "param `, p.pName, ` should be int",`)
+					g.P("    ctx.JSON(http.StatusBadRequest, gin.H{")
+					g.P(`        "code": int(ErrCode_param_error),`)
+					g.P(`        "detail": "param `, p.pName, ` should be int",`)
 					g.P("    })")
 					g.P("}")
 				} else if p.pType == StringType {
@@ -497,10 +495,10 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		}
 		if httpParam.Return != "void" {
 			g.P("")
-			g.P("ctx.JSON(http.StatusOK, gen.Response{")
-			g.P("    Code: int(code),")
-			g.P("    Detail: code.String(),")
-			g.P("    Data: rsp,")
+			g.P("ctx.JSON(http.StatusOK, gin.H{")
+			g.P(`    "code": int(code),`)
+			g.P(`    "detail": code.String(),`)
+			g.P(`    "data": rsp,`)
 			g.P("})")
 		}
 		g.P("}")
