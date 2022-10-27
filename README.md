@@ -65,20 +65,14 @@ service user_service{
 在 example目录下执行下面命令
 
 ```shell
-protoc --go_out=./ proto/*.proto --proto_path=proto --bic_out=response_pkg=protoc-gen-bic/example/gen:.
+protoc --go_out=./ proto/*.proto --proto_path=proto --bic_out=.
 ```
  
-命令解析:
+## 特性
 
-该命令指定了参数 response_pkg = protoc-gen-bic/example/gen。该参数将用于填充包含返回消息结构`Response`所在的包路径，即填充对应的import路径.
+在service定义中，通过注释指定api接口特性，特性支持下面标签(不区分大小写)
 
-Response的定义如下：
-
-```go
-type Response struct {
-    Code   int         `json:"code"`
-    Detail string      `json:"detail"`
-    Data   interface{} `json:"data"`
-}
-```
+- Summary
+- Url，支持url参数，支持数据类型 int,uint,string,int64,uint64
+- Method
    
