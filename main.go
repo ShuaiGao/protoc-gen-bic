@@ -39,9 +39,10 @@ func main() {
 				if len(*permissionPKG) > 0 {
 					internal.PermissionPkg = *permissionPKG
 				}
-				internal.GenerateFile(gen, f)
 				if len(*s) > 0 {
 					internal.GenerateTsFile(gen, f, *s)
+				} else {
+					internal.GenerateFile(gen, f)
 				}
 			}
 		}
