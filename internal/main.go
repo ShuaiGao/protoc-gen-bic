@@ -260,7 +260,7 @@ type HTTPParam struct {
 	Url          string
 	UrlParamList []URLParam
 	Permission   string
-	Return       string
+	Download     bool
 }
 
 // parseRpcLeading 解析rpc方法注释
@@ -322,10 +322,10 @@ func parseRpcLeading(comm string, funcName string) (param HTTPParam) {
 		param.Summary = strings.TrimSpace(string(summary[1]))
 	}
 
-	returnPermission := regexp.MustCompile(`(?i)@return\s*:\s*([^@$]*)`)
-	Return := returnPermission.FindSubmatch([]byte(comm))
-	if len(Return) > 1 {
-		param.Return = strings.TrimSpace(string(Return[1]))
+	returnPermission := regexp.MustCompile(`(?i)@download`)
+	download := returnPermission.FindSubmatch([]byte(comm))
+	if len(download) > 0 {
+		param.Download = true
 	}
 	return
 }
@@ -481,19 +481,19 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 					paramList = append(paramList, p.pName)
 				}
 			}
-			if httpParam.Return != "void" {
+			if !httpParam.Download {
 				g.P("rsp, code := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			}
 		} else {
-			if httpParam.Return != "void" {
+			if !httpParam.Download {
 				g.P("rsp, code := ", "x.xx.", value.GoName, "(ctx", req, ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ")")
 			}
 		}
-		if httpParam.Return != "void" {
+		if !httpParam.Download {
 			g.P("")
 			g.P("ctx.JSON(http.StatusOK, gin.H{")
 			g.P(`    "code": int(code),`)
