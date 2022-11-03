@@ -100,7 +100,7 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 		url = delTypeRe.ReplaceAllString(url, `" + $1`)
 
 		g.P("  return request({")
-		g.P("    url: \"/ad-manager", url, "\",")
+		g.P("    url: \"", url, "\",")
 		g.P("    method: \"", httpParam.MethodName, "\",")
 		if httpParam.Download {
 			g.P(`    responseType: "blob",`)

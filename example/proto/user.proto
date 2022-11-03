@@ -23,10 +23,12 @@ message RequestNil{ }
 message ResponseNil{ }
 
 service user_service{
-  // @Summary: 获取用户列表 @url:/v1/users/ @method:Get
+  // @Summary: 获取用户列表 @url:/users/v1/ @method:Get
   rpc GetUsers(RequestUsers) returns (ResponseUsers);
-  // @Summary: 添加用户 @url:/v1/users/ @method:Post
+  // @Summary: 添加用户 @url:/users/v1/ @method:Post
   rpc PostUsers(User) returns (ResponseNil);
-  // @Summary: 获取用户详情 @url:/v1/users/<uint:id>/ @method:Get
+  // @Summary: 获取用户详情 @url:/users/v1/<uint:id>/ @method:Get
   rpc GetUserInfo(RequestNil) returns (User);
+  // @Summary: 用户下载 @url:/users/v1/<uint:id>/ @method:Get @Download
+  rpc GetUserInfoDownload(RequestNil) returns (ResponseNil);
 }
