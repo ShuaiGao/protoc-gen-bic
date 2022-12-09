@@ -102,10 +102,8 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 		g.P("  return request({")
 		g.P("    url: \"", url, "\",")
 		g.P("    method: \"", httpParam.MethodName, "\",")
-		if httpParam.Download {
-			g.P(`    responseType: "blob",`)
-			g.P(`    isDownLoadFile: true,`)
-
+		for _, v := range httpParam.ClientParamList {
+			g.P(`    ` + v.Key + `: ` + v.Value + `,`)
 		}
 		if getFlag {
 			g.P("    params,")

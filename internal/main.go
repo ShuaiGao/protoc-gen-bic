@@ -20,7 +20,7 @@ import (
 
 var (
 	ImportPath = "import"
-	VERSION    = "1.1.3"
+	VERSION    = "1.2.0"
 )
 
 // SupportedFeatures reports the set of supported protobuf language features.
@@ -254,13 +254,19 @@ type URLParam struct {
 	pName string
 }
 
+type ClientParam struct {
+	Key   string
+	Value string
+}
+
 type HTTPParam struct {
-	Summary      string
-	MethodName   string
-	Url          string
-	UrlParamList []URLParam
-	Permission   string
-	Download     bool
+	Summary         string
+	MethodName      string
+	Url             string
+	UrlParamList    []URLParam
+	Permission      string
+	Void            bool
+	ClientParamList []ClientParam
 }
 
 // parseRpcLeading 解析rpc方法注释
@@ -322,10 +328,21 @@ func parseRpcLeading(comm string, funcName string) (param HTTPParam) {
 		param.Summary = strings.TrimSpace(string(summary[1]))
 	}
 
-	returnPermission := regexp.MustCompile(`(?i)@download`)
-	download := returnPermission.FindSubmatch([]byte(comm))
-	if len(download) > 0 {
-		param.Download = true
+	returnPermission := regexp.MustCompile(`(?i)@void`)
+	void := returnPermission.FindSubmatch([]byte(comm))
+	if len(void) > 0 {
+		param.Void = true
+	}
+
+	clientParam := regexp.MustCompile(`(?i)@cli-(\w+)\s*:\s*(["'a-zA-Z0-9]*)`)
+	paramList := clientParam.FindAllSubmatch([]byte(comm), -1)
+	for _, v := range paramList {
+		if len(v) > 2 {
+			param.ClientParamList = append(param.ClientParamList, ClientParam{
+				Key:   string(v[1]),
+				Value: string(v[2]),
+			})
+		}
 	}
 	return
 }
@@ -484,19 +501,19 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 					paramList = append(paramList, p.pName)
 				}
 			}
-			if !httpParam.Download {
+			if !httpParam.Void {
 				g.P("rsp, code := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			}
 		} else {
-			if !httpParam.Download {
+			if !httpParam.Void {
 				g.P("rsp, code := ", "x.xx.", value.GoName, "(ctx", req, ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ")")
 			}
 		}
-		if !httpParam.Download {
+		if !httpParam.Void {
 			g.P("")
 			g.P("ctx.JSON(http.StatusOK, gin.H{")
 			g.P(`    "code": int(code),`)
