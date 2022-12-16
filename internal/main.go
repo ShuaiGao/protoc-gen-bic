@@ -20,7 +20,7 @@ import (
 
 var (
 	ImportPath = "import"
-	VERSION    = "1.2.0"
+	VERSION    = "1.2.1"
 )
 
 // SupportedFeatures reports the set of supported protobuf language features.
@@ -267,6 +267,7 @@ type HTTPParam struct {
 	Permission      string
 	Void            bool
 	ClientParamList []ClientParam
+	Download        bool
 }
 
 // parseRpcLeading 解析rpc方法注释
@@ -332,6 +333,13 @@ func parseRpcLeading(comm string, funcName string) (param HTTPParam) {
 	void := returnPermission.FindSubmatch([]byte(comm))
 	if len(void) > 0 {
 		param.Void = true
+	}
+
+	downloadPermission := regexp.MustCompile(`(?i)@download`)
+	download := downloadPermission.FindSubmatch([]byte(comm))
+	if len(download) > 0 {
+		param.Void = true
+		param.Download = true
 	}
 
 	clientParam := regexp.MustCompile(`(?i)@cli-(\w+)\s*:\s*(["'a-zA-Z0-9]*)`)
