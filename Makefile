@@ -12,6 +12,10 @@ mac:
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64  go build -o "protoc-gen-bic" main.go
 	@cp  protoc-gen-bic $(GOPATHS)/bin
 	@rm  protoc-gen-bic
+wx:
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64  go build -o "protoc-gen-bic" main.go
+	@cp  protoc-gen-bic ../family-go/script/proto/protoc-gen-bic
+	@rm  protoc-gen-bic
 
 install:
 	@echo $(GOPATHS)

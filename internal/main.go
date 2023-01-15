@@ -20,7 +20,7 @@ import (
 
 var (
 	ImportPath = "import"
-	VERSION    = "1.2.1"
+	VERSION    = "1.2.1-wx"
 )
 
 // SupportedFeatures reports the set of supported protobuf language features.
