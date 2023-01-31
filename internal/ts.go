@@ -21,6 +21,7 @@ func GenerateTsFile(gen *protogen.Plugin, file *protogen.File, tsDir string) *pr
 	g.P("// versions: ", VERSION)
 
 	g.P()
+	g.P("import { ResponseResult } from '../wxAjax'")
 	g.P("import request from '../wxAjax'")
 	g.P()
 	generateTsFileContent(gen, file, g, false)
@@ -144,35 +145,36 @@ func genTsInterface(g *protogen.GeneratedFile, file *protogen.File, message *pro
 	if _, ok := interfaceCache[message.GoIdent.GoName]; !ok {
 		for _, ff := range message.Fields {
 			if ff.Desc.Kind() == protoreflect.MessageKind {
-				g.P("interface I", ff.Message.GoIdent.GoName, " {")
-				var fieldList []*TsField
-				var maxLen = 0
-				for _, field := range ff.Message.Fields {
-					required := strings.Contains(field.Comments.Leading.String(), "required")
-					tmp := &TsField{
-						fieldName: getTsFieldName(string(field.Desc.Name()), required),
-						fieldType: getTsFieldType(file, field, required, field.Desc.IsList()),
-						trailing:  strings.TrimSpace(field.Comments.Trailing.String()),
-						Required:  required,
-						IsList:    field.Desc.IsList(),
-					}
-					if field.Desc.IsExtension() {
-						tmp.trailing += " // Extension"
-					}
-					tmp.totalLen = len(tmp.fieldType) + len(tmp.fieldName)
-					fieldList = append(fieldList, tmp)
-					if tmp.totalLen > maxLen {
-						maxLen = tmp.totalLen
-					}
-				}
-				for _, v := range fieldList {
-					g.P(v.ToString(maxLen))
-				}
-				g.P("}")
-				interfaceCache[ff.Message.GoIdent.GoName] = true
+				genTsInterface(g, file, ff.Message)
+				//g.P("export interface I", ff.Message.GoIdent.GoName, " {")
+				//var fieldList []*TsField
+				//var maxLen = 0
+				//for _, field := range ff.Message.Fields {
+				//	required := strings.Contains(field.Comments.Leading.String(), "required")
+				//	tmp := &TsField{
+				//		fieldName: getTsFieldName(string(field.Desc.Name()), required),
+				//		fieldType: getTsFieldType(file, field, required, field.Desc.IsList()),
+				//		trailing:  strings.TrimSpace(field.Comments.Trailing.String()),
+				//		Required:  required,
+				//		IsList:    field.Desc.IsList(),
+				//	}
+				//	if field.Desc.IsExtension() {
+				//		tmp.trailing += " // Extension"
+				//	}
+				//	tmp.totalLen = len(tmp.fieldType) + len(tmp.fieldName)
+				//	fieldList = append(fieldList, tmp)
+				//	if tmp.totalLen > maxLen {
+				//		maxLen = tmp.totalLen
+				//	}
+				//}
+				//for _, v := range fieldList {
+				//	g.P(v.ToString(maxLen))
+				//}
+				//g.P("}")
+				//interfaceCache[ff.Message.GoIdent.GoName] = true
 			} else if ff.Desc.Kind() == protoreflect.EnumKind {
 				if _, ook := interfaceCache[ff.Enum.GoIdent.GoName]; !ook {
-					g.P("enum E", ff.Enum.GoIdent.GoName, " {")
+					g.P("export enum E", ff.Enum.GoIdent.GoName, " {")
 					var enumLine []*TsEnum
 					var maxLen = 0
 					for i, v := range ff.Enum.Values {
@@ -191,7 +193,7 @@ func genTsInterface(g *protogen.GeneratedFile, file *protogen.File, message *pro
 				interfaceCache[ff.Enum.GoIdent.GoName] = true
 			}
 		}
-		g.P("interface I", message.GoIdent.GoName, " {")
+		g.P("export interface I", message.GoIdent.GoName, " {")
 		var fieldList []*TsField
 		var maxLen = 0
 		for _, field := range message.Fields {
@@ -230,7 +232,7 @@ func genTsMessage(file *protogen.File, g *protogen.GeneratedFile) {
 func genTsEnum(file *protogen.File, g *protogen.GeneratedFile) {
 	for _, enum := range file.Enums {
 		// enum类型的完整类型名
-		g.P("enum E", enum.GoIdent.GoName, " {")
+		g.P("export enum E", enum.GoIdent.GoName, " {")
 		var enumLine []*TsEnum
 		var maxLen = 0
 		for i, v := range enum.Values {
@@ -301,9 +303,9 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 			}
 		}
 		if len(URLParamStr) > 0 {
-			g.P("export function ", value.GoName, "(", strings.Join(URLParamStr, ", "), ") ", "{")
+			g.P("export function ", value.GoName, "(", strings.Join(URLParamStr, ", "), ", success: (res: ResponseResult<I", value.Output.GoIdent.GoName, ">) => void)", " {")
 		} else {
-			g.P("export function ", value.GoName, "() ", "{")
+			g.P("export function ", value.GoName, "(success: (res: ResponseResult<I", value.Output.GoIdent.GoName, ">) => void) ", "{")
 		}
 		url := httpParam.Url
 		delTypeRe := regexp.MustCompile(`:(\w+)/`)
@@ -314,6 +316,7 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 
 		g.P("  return request({")
 		g.P("    url: \"", url, "\",")
+		g.P("    success: success,")
 		g.P("    method: \"", httpParam.MethodName, "\",")
 		for _, v := range httpParam.ClientParamList {
 			g.P(`    ` + v.Key + `: ` + v.Value + `,`)

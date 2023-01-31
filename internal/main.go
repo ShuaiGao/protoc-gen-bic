@@ -500,7 +500,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 						paramList = append(paramList, p.pName)
 					}
 					g.P("    ctx.JSON(http.StatusBadRequest, gin.H{")
-					g.P(`        "code": int(ErrCode_param_error),`)
+					g.P(`        "code": int(ECParamError),`)
 					g.P(`        "detail": "param `, p.pName, ` should be int",`)
 					g.P("    })")
 					g.P("}")
