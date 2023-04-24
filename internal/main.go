@@ -437,10 +437,11 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			} else if ff.Desc.IsList() && ff.Desc.Message() != nil {
 				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
 			}
-			if kindName == "bytes" {
+			if kindName == "message" {
+				kindName = string(ff.Desc.Message().Name())
+			} else if kindName == "bytes" {
 				kindName = "[]byte"
-			}
-			if kindName == "float" {
+			} else if kindName == "float" {
 				kindName = "float32"
 			} else if kindName == "double" {
 				kindName = "float64"
