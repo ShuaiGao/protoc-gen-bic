@@ -460,13 +460,18 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, " ", fieldRequired(ff), ` "参数无注释"`)
 			}
 		}
-		g.P("// @Success 200 {object} ", value.Output.GoIdent.GoName)
+
+		if value.Output.GoIdent.GoName == "Empty" {
+			g.P("// @Success 200 {object} object null")
+		} else {
+			g.P("// @Success 200 {object} ", value.Output.GoIdent.GoName)
+		}
 		g.P(`// @Failure 401 {string} string "header need Authorization data"`)
 		g.P(`// @Failure 403 {string} string "no api permission or no obj permission"`)
 		g.P("// @Router ", httpParam.Url, " [", httpParam.MethodName, "]")
 		g.P("func (x *x_", service.GoName, ")", value.GoName, "(ctx *gin.Context)", "{")
 		req := ""
-		if value.Input.GoIdent.GoName != "CommonNil" {
+		if value.Input.GoIdent.GoName != "CommonNil" && value.Input.GoIdent.GoName != "Empty" {
 			req = ",req"
 			g.P("  req := &", value.Input.GoIdent, "{}")
 			if httpParam.MethodName == "GET" {
@@ -511,13 +516,13 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				}
 			}
 			if !httpParam.Void {
-				g.P("rsp, err := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
+				g.P("rsp, errCode := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			}
 		} else {
 			if !httpParam.Void {
-				g.P("rsp, err := ", "x.xx.", value.GoName, "(ctx", req, ")")
+				g.P("rsp, errCode := ", "x.xx.", value.GoName, "(ctx", req, ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ")")
 			}
@@ -525,8 +530,8 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		if !httpParam.Void {
 			g.P("")
 			g.P("ctx.JSON(http.StatusOK, gin.H{")
-			g.P(`    "code": err.Code(),`)
-			g.P(`    "detail": err.String(),`)
+			g.P(`    "code": errCode.Code(),`)
+			g.P(`    "detail": errCode.String(),`)
 			g.P(`    "data": rsp,`)
 			g.P("})")
 		}
@@ -542,7 +547,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	}
 	for _, value := range service.Methods {
 		inParam := ",in *" + value.Input.GoIdent.GoName
-		if value.Input.GoIdent.GoName == "CommonNil" {
+		if value.Input.GoIdent.GoName == "CommonNil" || value.Input.GoIdent.GoName == "Empty" {
 			inParam = ""
 		}
 		httpParam := parseRpcLeading(value.Comments.Leading.String(), value.GoName)
