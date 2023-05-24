@@ -3,6 +3,10 @@
 
 package api
 
+import (
+	empty "github.com/golang/protobuf/ptypes/empty"
+)
+
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the kratos package it is being compiled against.
 import (
@@ -18,6 +22,8 @@ func RegisterUserServiceHttpHandler(g *gin.RouterGroup, srvs UserService) {
 	g.POST("/users/v1/", tmp.PostUsers)
 	g.GET("/users/v1/:id/", tmp.GetUserInfo)
 	g.GET("/users/v1/:id/", tmp.GetUserInfoDownload)
+	g.GET("/users/v1/common/nil/", tmp.GetCommonNil)
+	g.GET("/users/v1/empty/", tmp.PostEmpty)
 }
 
 type UserService interface {
@@ -25,6 +31,8 @@ type UserService interface {
 	PostUsers(ctx *gin.Context, in *User) (out *ResponseNil, code ErrCode)
 	GetUserInfo(ctx *gin.Context, in *RequestNil, id uint) (out *User, code ErrCode)
 	GetUserInfoDownload(ctx *gin.Context, in *RequestNil, id uint) (out *ResponseNil, code ErrCode)
+	GetCommonNil(ctx *gin.Context) (out *User, code ErrCode)
+	PostEmpty(ctx *gin.Context, in *RequestPostEmpty) (out *empty.Empty, code ErrCode)
 }
 
 // generated http handle
@@ -33,6 +41,8 @@ type UserServiceHttpHandler interface {
 	PostUsers(ctx *gin.Context)
 	GetUserInfo(ctx *gin.Context)
 	GetUserInfoDownload(ctx *gin.Context)
+	GetCommonNil(ctx *gin.Context)
+	PostEmpty(ctx *gin.Context)
 }
 
 type x_UserService struct {
@@ -54,11 +64,11 @@ func (x *x_UserService) GetUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"code": 400, "detail": "request error"})
 		return
 	}
-	rsp, err := x.xx.GetUsers(ctx, req)
+	rsp, errCode := x.xx.GetUsers(ctx, req)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"code":   err.Code(),
-		"detail": err.String(),
+		"code":   errCode.Code(),
+		"detail": errCode.String(),
 		"data":   rsp,
 	})
 }
@@ -79,11 +89,11 @@ func (x *x_UserService) PostUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"code": 400, "detail": "request error"})
 		return
 	}
-	rsp, err := x.xx.PostUsers(ctx, req)
+	rsp, errCode := x.xx.PostUsers(ctx, req)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"code":   err.Code(),
-		"detail": err.String(),
+		"code":   errCode.Code(),
+		"detail": errCode.String(),
 		"data":   rsp,
 	})
 }
@@ -109,11 +119,11 @@ func (x *x_UserService) GetUserInfo(ctx *gin.Context) {
 			"detail": "param id should be int",
 		})
 	}
-	rsp, err := x.xx.GetUserInfo(ctx, req, uint(id))
+	rsp, errCode := x.xx.GetUserInfo(ctx, req, uint(id))
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"code":   err.Code(),
-		"detail": err.String(),
+		"code":   errCode.Code(),
+		"detail": errCode.String(),
 		"data":   rsp,
 	})
 }
@@ -140,4 +150,44 @@ func (x *x_UserService) GetUserInfoDownload(ctx *gin.Context) {
 		})
 	}
 	_, _ = x.xx.GetUserInfoDownload(ctx, req, uint(id))
+}
+
+// @Summary 空参数示例1
+// @Tags User-Service
+// @Produce json
+// @Success 200 {object} User
+// @Failure 401 {string} string "header need Authorization data"
+// @Failure 403 {string} string "no api permission or no obj permission"
+// @Router /users/v1/common/nil/ [GET]
+func (x *x_UserService) GetCommonNil(ctx *gin.Context) {
+	rsp, errCode := x.xx.GetCommonNil(ctx)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":   errCode.Code(),
+		"detail": errCode.String(),
+		"data":   rsp,
+	})
+}
+
+// @Summary 空参数示例2
+// @Tags User-Service
+// @Produce json
+// @Param name query string false "参数无注释"
+// @Success 200 {object} object null
+// @Failure 401 {string} string "header need Authorization data"
+// @Failure 403 {string} string "no api permission or no obj permission"
+// @Router /users/v1/empty/ [GET]
+func (x *x_UserService) PostEmpty(ctx *gin.Context) {
+	req := &RequestPostEmpty{}
+	if err := ctx.ShouldBindQuery(req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"code": 400, "detail": "request error"})
+		return
+	}
+	rsp, errCode := x.xx.PostEmpty(ctx, req)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":   errCode.Code(),
+		"detail": errCode.String(),
+		"data":   rsp,
+	})
 }
