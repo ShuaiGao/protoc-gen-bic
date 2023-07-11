@@ -439,6 +439,10 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			}
 			if kindName == "message" {
 				kindName = string(ff.Desc.Message().Name())
+				if kindName == "DataEntry" {
+					// TODO 处理 map 类型
+					kindName = "object"
+				}
 			} else if kindName == "bytes" {
 				kindName = "[]byte"
 			} else if kindName == "float" {
