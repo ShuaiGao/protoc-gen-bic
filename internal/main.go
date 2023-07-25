@@ -433,7 +433,12 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			}
 			kindName := ff.Desc.Kind().String()
 			if ff.Enum != nil {
-				kindName = string(ff.Enum.Desc.Name())
+				kindNames := strings.Split(string(ff.Enum.Desc.FullName()), ".")
+				if len(kindNames) < 3 {
+					kindName = string(ff.Enum.Desc.Name())
+				} else {
+					kindName = strings.Join(kindNames[1:], "_")
+				}
 			} else if ff.Desc.IsList() && ff.Desc.Message() != nil {
 				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
 			}
