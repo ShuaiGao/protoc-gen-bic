@@ -4,9 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/ShuaiGao/protoc-gen-bic/internal"
 	"os"
 	"path/filepath"
-	"protoc-gen-bic/internal"
 
 	"google.golang.org/protobuf/compiler/protogen"
 )

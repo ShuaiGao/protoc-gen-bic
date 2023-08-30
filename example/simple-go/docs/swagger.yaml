@@ -1,0 +1,122 @@
+basePath: /api/ad-manager
+definitions:
+  api.ResponseNil:
+    type: object
+  api.ResponseUsers:
+    properties:
+      data_list:
+        items:
+          $ref: '#/definitions/api.User'
+        type: array
+    type: object
+  api.User:
+    properties:
+      email:
+        description: 邮箱
+        type: string
+      id:
+        description: 主键ID
+        type: integer
+      username:
+        description: 用户名
+        type: string
+    type: object
+host: ad-manager-feature-test-server-test.tuyougame.cn
+info:
+  contact:
+    email: gaoshuai@tuyoogame.com
+    name: GaoShuai
+  title: 自动化投放api文档
+  version: "1.0"
+paths:
+  /users/v1/:
+    get:
+      parameters:
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResponseUsers'
+        "401":
+          description: header need Authorization data
+          schema:
+            type: string
+        "403":
+          description: no api permission or no obj permission
+          schema:
+            type: string
+      summary: 获取用户列表
+      tags:
+      - User-Service
+    post:
+      parameters:
+      - description: 主键ID
+        in: body
+        name: id
+        schema:
+          type: integer
+      - description: 用户名
+        in: body
+        name: username
+        schema:
+          type: string
+      - description: 邮箱
+        in: body
+        name: email
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResponseNil'
+        "401":
+          description: header need Authorization data
+          schema:
+            type: string
+        "403":
+          description: no api permission or no obj permission
+          schema:
+            type: string
+      summary: 添加用户
+      tags:
+      - User-Service
+  /users/v1/:id/:
+    get:
+      parameters:
+      - description: some id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResponseNil'
+        "401":
+          description: header need Authorization data
+          schema:
+            type: string
+        "403":
+          description: no api permission or no obj permission
+          schema:
+            type: string
+      summary: 用户下载
+      tags:
+      - User-Service
+swagger: "2.0"

@@ -1,0 +1,48 @@
+syntax = "proto3";
+package http;
+option go_package = "gen/api";
+
+import "google/protobuf/empty.proto";
+
+message RequestUsers{
+  // @gotags: form:"page"
+  uint32 page = 1; // 页码
+  // @gotags: form:"page_size"
+  uint32 page_size = 2; // 每页数量
+}
+
+message User{
+  uint32 id = 1; // 主键ID
+  string username = 2; // 用户名
+  string email = 3; // 邮箱
+}
+
+message ResponseUsers{
+  repeated User data_list = 1;
+}
+
+message RequestNil{ }
+message ResponseNil{ }
+
+message RequestPostEmpty{
+  string name = 1;
+}
+
+// 一个内置的空参数命名，生成工具会匹配这个名字，以判断参数是否为空，预支对应的，可以使用google官方的Empty对象
+message CommonNil{}
+
+
+service user_service{
+  // @Summary: 获取用户列表 @url:/users/v1/ @method:Get
+  rpc GetUsers(RequestUsers) returns (ResponseUsers);
+  // @Summary: 添加用户 @url:/users/v1/ @method:Post
+  rpc PostUsers(User) returns (ResponseNil);
+  // @Summary: 获取用户详情 @url:/users/v1/<uint:id>/ @method:Get
+  rpc GetUserInfo(RequestNil) returns (User);
+  // @Summary: 用户下载 @url:/users/v1/<uint:id>/ @method:Get @Download
+  rpc GetUserInfoDownload(RequestNil) returns (ResponseNil);
+  // @Summary: 空参数示例1 @url:/users/v1/common/nil/ @method:Get
+  rpc GetCommonNil(CommonNil) returns (User);
+  // @Summary: 空参数示例2 @url:/users/v1/empty/ @method:Get
+  rpc PostEmpty(RequestPostEmpty) returns (google.protobuf.Empty);
+}
