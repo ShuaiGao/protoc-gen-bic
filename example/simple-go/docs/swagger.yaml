@@ -1,4 +1,4 @@
-basePath: /api/ad-manager
+basePath: /api/xxx
 definitions:
   api.ResponseNil:
     type: object
@@ -21,12 +21,12 @@ definitions:
         description: 用户名
         type: string
     type: object
-host: ad-manager-feature-test-server-test.tuyougame.cn
+host: ShuaiGao.github.io
 info:
   contact:
-    email: gaoshuai@tuyoogame.com
-    name: GaoShuai
-  title: 自动化投放api文档
+    email: boringmanman@qq.com
+    name: ZiGa
+  title: xxx系统api文档
   version: "1.0"
 paths:
   /users/v1/:
@@ -117,6 +117,51 @@ paths:
           schema:
             type: string
       summary: 用户下载
+      tags:
+      - User-Service
+  /users/v1/common/nil/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.User'
+        "401":
+          description: header need Authorization data
+          schema:
+            type: string
+        "403":
+          description: no api permission or no obj permission
+          schema:
+            type: string
+      summary: 空参数示例1
+      tags:
+      - User-Service
+  /users/v1/empty/:
+    get:
+      parameters:
+      - description: 参数无注释
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: header need Authorization data
+          schema:
+            type: string
+        "403":
+          description: no api permission or no obj permission
+          schema:
+            type: string
+      summary: 空参数示例2
       tags:
       - User-Service
 swagger: "2.0"

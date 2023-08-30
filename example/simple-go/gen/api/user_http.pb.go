@@ -103,8 +103,8 @@ func (x *x_UserService) PostUsers(ctx *gin.Context) {
 // @Produce json
 // @Param   id  path     uint true "some id"
 // @Success 200 {object} User
-// @Failure 401 {string} string "header need Authorization data"
-// @Failure 403 {string} string "no api permission or no obj permission"
+// @Failure 401  {string} string "header need Authorization data"
+// @Failure 403  {string} string "no api permission or no obj permission"
 // @Router  /users/v1/:id/ [GET]
 func (x *x_UserService) GetUserInfo(ctx *gin.Context) {
 	req := &RequestNil{}
@@ -153,12 +153,12 @@ func (x *x_UserService) GetUserInfoDownload(ctx *gin.Context) {
 }
 
 // @Summary 空参数示例1
-// @Tags User-Service
+// @Tags    User-Service
 // @Produce json
 // @Success 200 {object} User
 // @Failure 401 {string} string "header need Authorization data"
 // @Failure 403 {string} string "no api permission or no obj permission"
-// @Router /users/v1/common/nil/ [GET]
+// @Router  /users/v1/common/nil/ [GET]
 func (x *x_UserService) GetCommonNil(ctx *gin.Context) {
 	rsp, errCode := x.xx.GetCommonNil(ctx)
 
@@ -170,13 +170,13 @@ func (x *x_UserService) GetCommonNil(ctx *gin.Context) {
 }
 
 // @Summary 空参数示例2
-// @Tags User-Service
+// @Tags    User-Service
 // @Produce json
-// @Param name query string false "参数无注释"
-// @Success 200 {object} object null
+// @Param   name query    string false "参数无注释"
+// @Success 200  {object} object null
 // @Failure 401 {string} string "header need Authorization data"
 // @Failure 403 {string} string "no api permission or no obj permission"
-// @Router /users/v1/empty/ [GET]
+// @Router  /users/v1/empty/ [GET]
 func (x *x_UserService) PostEmpty(ctx *gin.Context) {
 	req := &RequestPostEmpty{}
 	if err := ctx.ShouldBindQuery(req); err != nil {

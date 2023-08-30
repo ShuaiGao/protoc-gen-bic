@@ -11,8 +11,8 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "GaoShuai",
-            "email": "gaoshuai@tuyoogame.com"
+            "name": "ZiGa",
+            "email": "boringmanman@qq.com"
         },
         "version": "{{.Version}}"
     },
@@ -158,6 +158,76 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/v1/common/nil/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User-Service"
+                ],
+                "summary": "空参数示例1",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.User"
+                        }
+                    },
+                    "401": {
+                        "description": "header need Authorization data",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "no api permission or no obj permission",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/v1/empty/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User-Service"
+                ],
+                "summary": "空参数示例2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "参数无注释",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "401": {
+                        "description": "header need Authorization data",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "no api permission or no obj permission",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -198,10 +268,10 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "ad-manager-feature-test-server-test.tuyougame.cn",
-	BasePath:         "/api/ad-manager",
+	Host:             "ShuaiGao.github.io",
+	BasePath:         "/api/xxx",
 	Schemes:          []string{},
-	Title:            "自动化投放api文档",
+	Title:            "xxx系统api文档",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

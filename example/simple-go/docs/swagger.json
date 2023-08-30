@@ -1,15 +1,15 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "自动化投放api文档",
+        "title": "xxx系统api文档",
         "contact": {
-            "name": "GaoShuai",
-            "email": "gaoshuai@tuyoogame.com"
+            "name": "ZiGa",
+            "email": "boringmanman@qq.com"
         },
         "version": "1.0"
     },
-    "host": "ad-manager-feature-test-server-test.tuyougame.cn",
-    "basePath": "/api/ad-manager",
+    "host": "ShuaiGao.github.io",
+    "basePath": "/api/xxx",
     "paths": {
         "/users/v1/": {
             "get": {
@@ -134,6 +134,76 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/api.ResponseNil"
+                        }
+                    },
+                    "401": {
+                        "description": "header need Authorization data",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "no api permission or no obj permission",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/v1/common/nil/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User-Service"
+                ],
+                "summary": "空参数示例1",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.User"
+                        }
+                    },
+                    "401": {
+                        "description": "header need Authorization data",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "no api permission or no obj permission",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/v1/empty/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User-Service"
+                ],
+                "summary": "空参数示例2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "参数无注释",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
                         }
                     },
                     "401": {
