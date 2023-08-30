@@ -1,18 +1,19 @@
-# 自动生成代码介绍
+# protoc-gen-bic
 
-> protoc-gen-bic 是一款可以自动生成gin http服务注册和调用的工具，其基于gin web框架构建模板，通过读取Protobuf的message和service构建服务注册和调用
+protoc-gen-bic是一款强大、易用、优雅的接口生成工具。它设计用于解决基于protobuf的http接口定义，自动生成客户端（ts）和服务端（go)接口代码和接口文档。
 
-## 构建生成代码工具
+服务端基于gin web框架构建模板，通过读取Protobuf的message和service构建服务注册和调用。
+
+## 安装与验证
 
 1. 安装
+
 ```git
-// go1.17前
-go get -u github.com/ShuaiGao/protoc-gen-bic@latest
-go install github.com/ShuaiGao/protoc-gen-bic
-// go1.17后
 go install github.com/ShuaiGao/protoc-gen-bic@latest
 ```
+
 2. 验证
+
 > protoc-gen-bic --version
 > 
 > protoc-gen-bic v1.0.0
@@ -21,53 +22,10 @@ go install github.com/ShuaiGao/protoc-gen-bic@latest
 
 ## 构建一个服务
 
-*可参见example目录下示例*
+服务构建，参见 example 目录下的 simple-go 项目，其中client目录仅仅用于存储客户端生成代码
 
-1. 定义proto
+为避免重复造轮子，该示例中引入了一些其他工具，快捷方便地构建系统代码。
 
-```protobuf
-syntax = "proto3";
-package http;
-option go_package = "gen/api";
-
-message RequestUsers{
-  // @gotags: form:"page"
-  uint32 page = 1; // 页码
-  // @gotags: form:"page_size"
-  uint32 page_size = 2; // 每页数量
-}
-
-message User{
-  uint32 id = 1; // 主键ID
-  string username = 2; // 用户名
-  string email = 3; // 邮箱
-}
-
-message ResponseUsers{
-  repeated User data_list = 1;
-}
-
-message RequestNil{ }
-message ResponseNil{ }
-
-service user_service{
-  // @Summary: 获取用户列表 @url:/v1/users/ @method:Get
-  rpc GetUsers(RequestUsers) returns (ResponseUsers);
-  // @Summary: 添加用户 @url:/v1/users/ @method:Post
-  rpc PostUsers(User) returns (ResponseNil);
-  // @Summary: 获取用户详情 @url:/v1/users/<uint:id>/ @method:Get
-  rpc GetUserInfo(RequestNil) returns (User);
-}
-```
-
-2. 执行命令，可参见gen.sh 文件
-
-在 example目录下执行下面命令
-
-```shell
-protoc --go_out=./ proto/*.proto --proto_path=proto --bic_out=.
-```
- 
 ## 特性
 
 在service定义中，通过注释指定api接口特性，特性支持下面标签(不区分大小写)
@@ -75,4 +33,8 @@ protoc --go_out=./ proto/*.proto --proto_path=proto --bic_out=.
 - Summary
 - Url，支持url参数，支持数据类型 int,uint,string,int64,uint64
 - Method
-   
+- Client-xxx 用于生成客户端request填充自定义参数xxx
+
+## license
+
+protoc-gen-bic is licensed under the [MIT](https://github.com/ShuaiGao/protoc-gen-bic/blob/main/LICENSE) license

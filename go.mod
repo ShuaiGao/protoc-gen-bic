@@ -1,4 +1,4 @@
-module protoc-gen-bic
+module github.com/ShuaiGao/protoc-gen-bic
 
 go 1.18
 
