@@ -309,11 +309,13 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 				URLParamStr = append(URLParamStr, "data: I"+value.Input.GoIdent.GoName)
 			}
 		}
-		output := "I" + value.Output.GoIdent.GoName
+		//output := "I" + value.Output.GoIdent.GoName
 		if len(URLParamStr) > 0 {
-			g.P("export function ", value.GoName, "(", strings.Join(URLParamStr, ", "), "): Promise<Response<"+output+">> {")
+			g.P("export function ", value.GoName, "(", strings.Join(URLParamStr, ", "), ") {")
+			//g.P("export function ", value.GoName, "(", strings.Join(URLParamStr, ", "), "): Promise<Response<"+output+">> {")
 		} else {
-			g.P("export function ", value.GoName, "(): Promise<Response<"+output+">> {")
+			g.P("export function ", value.GoName, "() {")
+			//g.P("export function ", value.GoName, "(): Promise<Response<"+output+">> {")
 		}
 		url := httpParam.Url
 		delTypeRe := regexp.MustCompile(`:(\w+)/`)

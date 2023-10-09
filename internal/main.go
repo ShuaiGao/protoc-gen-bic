@@ -488,7 +488,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			} else {
 				g.P("  if err := ctx.Bind(req); err != nil {")
 			}
-			g.P(` 	  ctx.JSON(http.StatusBadRequest, gin.H{"code": 400, "detail":"request error"})`)
+			g.P(` 	  ctx.JSON(http.StatusOK, gin.H{"code": 400, "detail":" request error"})`)
 			g.P("     return")
 			g.P("   }")
 
@@ -515,7 +515,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 						paramList = append(paramList, p.pName)
 					}
 					g.P("    ctx.JSON(http.StatusBadRequest, gin.H{")
-					g.P(`        "code": 400,`)
+					g.P(`        "code": int(ErrCode_param_error),`)
 					g.P(`        "detail": "param `, p.pName, ` should be int",`)
 					g.P("    })")
 					g.P("}")
@@ -525,13 +525,13 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				}
 			}
 			if !httpParam.Void {
-				g.P("rsp, errCode := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
+				g.P("rsp, code := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			}
 		} else {
 			if !httpParam.Void {
-				g.P("rsp, errCode := ", "x.xx.", value.GoName, "(ctx", req, ")")
+				g.P("rsp, code := ", "x.xx.", value.GoName, "(ctx", req, ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ")")
 			}
@@ -539,8 +539,8 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		if !httpParam.Void {
 			g.P("")
 			g.P("ctx.JSON(http.StatusOK, gin.H{")
-			g.P(`    "code": errCode.Code(),`)
-			g.P(`    "detail": errCode.String(),`)
+			g.P(`    "code": int(code),`)
+			g.P(`    "detail": code.String(),`)
 			g.P(`    "data": rsp,`)
 			g.P("})")
 		}
