@@ -20,7 +20,7 @@ import (
 
 var (
 	ImportPath = "import"
-	VERSION    = "1.2.1"
+	VERSION    = "1.3.0"
 )
 
 // SupportedFeatures reports the set of supported protobuf language features.
@@ -486,9 +486,9 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			if httpParam.MethodName == "GET" {
 				g.P("  if err := ctx.ShouldBindQuery(req); err != nil {")
 			} else {
-				g.P("  if err := ctx.Bind(req); err != nil {")
+				g.P("  if err := ctx.ShouldBindJSON(req); err != nil {")
 			}
-			g.P(` 	  ctx.JSON(http.StatusOK, gin.H{"code": 400, "detail":" request error"})`)
+			g.P(` 	  ctx.JSON(http.StatusOK, gin.H{"code": 400, "detail":"request error"})`)
 			g.P("     return")
 			g.P("   }")
 
