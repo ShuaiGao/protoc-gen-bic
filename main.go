@@ -5,6 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ShuaiGao/protoc-gen-bic/internal"
+	"github.com/ShuaiGao/protoc-gen-bic/internal/js"
+	"github.com/ShuaiGao/protoc-gen-bic/internal/ts"
+	"github.com/ShuaiGao/protoc-gen-bic/internal/utils"
 	"os"
 	"path/filepath"
 
@@ -13,7 +16,7 @@ import (
 
 func main() {
 	if len(os.Args) == 2 && os.Args[1] == "--version" {
-		fmt.Fprintf(os.Stdout, "%v %v\n", filepath.Base(os.Args[0]), internal.VERSION)
+		fmt.Fprintf(os.Stdout, "%v %v\n", filepath.Base(os.Args[0]), utils.VERSION)
 		os.Exit(0)
 	}
 	if len(os.Args) == 2 && os.Args[1] == "--help" {
@@ -25,7 +28,8 @@ func main() {
 		plugins = flags.String("plugins", "", "deprecated option")
 	)
 
-	s := flags.String("ts_dir", "", "ts文件生成目录")
+	tsDir := flags.String("ts_dir", "", "ts文件生成目录")
+	jsDir := flags.String("js_dir", "", "js文件生成目录")
 	permissionPKG := flags.String("permission_pkg", "", "权限校验包名")
 	flag.Parse()
 	protogen.Options{
@@ -39,8 +43,10 @@ func main() {
 				if len(*permissionPKG) > 0 {
 					internal.PermissionPkg = *permissionPKG
 				}
-				if len(*s) > 0 {
-					internal.GenerateTsFile(gen, f, *s)
+				if len(*tsDir) > 0 {
+					ts.GenerateTsFile(gen, f, *tsDir)
+				} else if len(*jsDir) > 0 {
+					js.GenerateJsFile(gen, f, *jsDir)
 				} else {
 					internal.GenerateFile(gen, f)
 				}
