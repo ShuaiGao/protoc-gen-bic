@@ -288,7 +288,7 @@ func genTsInterface(g *protogen.GeneratedFile, file *protogen.File, message *pro
 			g.P(v.ToString(maxLen))
 		}
 		if len(fieldList) == 0 {
-			g.P("  __placeholder__: any")
+			g.P("  __placeholder__?: any")
 		}
 		g.P("}")
 		g.P("")

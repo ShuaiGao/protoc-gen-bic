@@ -26,6 +26,14 @@ go install github.com/ShuaiGao/protoc-gen-bic@latest
 
 为避免重复造轮子，该示例中引入了一些其他工具，快捷方便地构建系统代码。
 
+## 支持语言
+
+支持生成下面语言的接口代码
+
+- go
+- ts
+- js
+
 ## 特性
 
 在service定义中，通过注释指定api接口特性，特性支持下面标签(不区分大小写)
