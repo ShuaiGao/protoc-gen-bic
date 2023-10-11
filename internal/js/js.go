@@ -91,13 +91,6 @@ func getJsUrlParamTypeShow(pType string) string {
 	return urlParamTypeMap[strings.ToLower(pType)]
 }
 
-// TODO 其他类型
-//BoolKind     Kind = 8
-//EnumKind     Kind = 14
-//BytesKind    Kind = 12
-//MessageKind  Kind = 11
-//GroupKind    Kind = 10
-
 func getJsFieldName(kindName string, required bool) string {
 	if required {
 		return kindName
@@ -196,13 +189,13 @@ func (te *ApiParam) ToString(maxLen int) string {
 	required := strings.Contains(te.leading, utils.Required) || strings.Contains(te.trailing, utils.Required)
 	if !te.fieldFlag {
 		leading := strings.TrimSpace(strings.TrimLeft(te.leading, "/ "))
-		return fmt.Sprintf(" * { Object } %s   %s - %s %s", paramName, space, te.name, leading)
+		return fmt.Sprintf(" * @param { Object } %s   %s - %s %s", paramName, space, te.name, leading)
 	}
 	trailing := strings.TrimSpace(strings.TrimLeft(te.trailing, "/ "))
 	if required {
-		return fmt.Sprintf(" * { %s } %s.%s  %s - %s", jsTypeMap[te.fieldType], paramName, te.fieldName, space, trailing)
+		return fmt.Sprintf(" * @param { %s } %s.%s  %s - %s", jsTypeMap[te.fieldType], paramName, te.fieldName, space, trailing)
 	}
-	return fmt.Sprintf(" * { ?%s } %s.%s %s - %s", jsTypeMap[te.fieldType], paramName, te.fieldName, space, trailing)
+	return fmt.Sprintf(" * @param { ?%s } %s.%s %s - %s", jsTypeMap[te.fieldType], paramName, te.fieldName, space, trailing)
 }
 
 type JsEnum struct {

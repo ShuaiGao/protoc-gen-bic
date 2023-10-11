@@ -259,7 +259,6 @@ func genTsInterface(g *protogen.GeneratedFile, file *protogen.File, message *pro
 					g.P("}")
 				}
 				interfaceCache[ff.Enum.GoIdent.GoName] = true
-
 			}
 		}
 		name = "I" + message.GoIdent.GoName
