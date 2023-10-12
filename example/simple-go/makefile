@@ -3,6 +3,7 @@ PROTOC_DIR := $(shell pwd)/script/
 
 go:
 	@$(PROTOC_DIR)/protoc --plugin=protoc-gen-bic=$(PROTOC_DIR)/protoc-gen-bic --plugin=protoc-gen-go=$(PROTOC_DIR)/protoc-gen-go  --go_out=. proto/*.proto --proto_path=proto
+	@$(PROTOC_DIR)gomodifytags -file gen/api/user.pb.go -all -add-tags  form -w -quiet
 	@$(PROTOC_DIR)protoc-go-inject-tag -input="gen/api/*.pb.go"
 	@$(PROTOC_DIR)swag fmt
 	@$(PROTOC_DIR)swag init

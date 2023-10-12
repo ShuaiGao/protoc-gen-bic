@@ -256,6 +256,10 @@ const docTemplate = `{
                     "description": "主键ID",
                     "type": "integer"
                 },
+                "sex": {
+                    "description": "性别",
+                    "type": "integer"
+                },
                 "username": {
                     "description": "用户名",
                     "type": "string"
