@@ -24,6 +24,12 @@ go install github.com/ShuaiGao/protoc-gen-bic@latest
 
 服务构建，参见 example 目录下的 simple-go 项目，其中client目录仅仅用于存储客户端生成代码
 
+或一个参照完整示例项目
+
+- vue 前端，[bic-vue](https://github.com/ShuaiGao/bic-vue)
+- go 后端，[bic-gin](https://github.com/ShuaiGao/bic-gin)
+- proto，[bic-proto](https://github.com/ShuaiGao/bic-proto)
+
 为避免重复造轮子，该示例中引入了一些其他工具，快捷方便地构建系统代码。
 
 ## 支持语言
