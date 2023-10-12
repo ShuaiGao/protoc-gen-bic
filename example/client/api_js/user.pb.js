@@ -2,12 +2,22 @@
 // versions: 1.4.2-old
 
 import request from '@/utils/axiosReq'
+/**
+ * @readonly
+ * @enum {number}
+ */
+const ESex = {
+  SexNone: 0,   // 无意义占位用
+  SexMale: 1,   // 男性
+  SexFemale: 2  // 女性
+}
+
 
 /**
  * 获取用户列表
  * @param { Object } params            - RequestUsers 
- * @param { ?number } params.page      - 页码
- * @param { ?number } params.pageSize  - 每页数量
+ * @param { number } params.page       - 页码
+ * @param { number } params.pageSize   - 每页数量
  * @return { Promise } Promise object - ResponseUsers
  */
 export function GetUsers(params) {
@@ -24,6 +34,7 @@ export function GetUsers(params) {
  * @param { ?number } data.id        - 主键ID
  * @param { ?string } data.username  - 用户名
  * @param { ?string } data.email     - 邮箱
+ * @param { ?Object } data.sex       - 性别
  * @return { Promise } Promise object - ResponseNil
  */
 export function PostUsers(data) {

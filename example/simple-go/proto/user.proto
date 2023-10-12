@@ -4,10 +4,17 @@ option go_package = "gen/api";
 
 import "google/protobuf/empty.proto";
 
+
+enum Sex{
+  SexNone = 0; // 无意义占位用
+  SexMale = 1; // 男性
+  SexFemale = 2; // 女性
+}
+
 message RequestUsers{
-  // @gotags: form:"page"
+  // @gotags: validate:"required,gt=0"
   uint32 page = 1; // 页码
-  // @gotags: form:"page_size"
+  // @gotags: validate:"required,gt=0,lte=100"
   uint32 page_size = 2; // 每页数量
 }
 
@@ -15,6 +22,7 @@ message User{
   uint32 id = 1; // 主键ID
   string username = 2; // 用户名
   string email = 3; // 邮箱
+  Sex sex = 4;// 性别
 }
 
 message ResponseUsers{

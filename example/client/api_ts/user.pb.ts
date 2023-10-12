@@ -4,15 +4,23 @@
 import request, { Response } from '@/utils/axiosReq'
 import { IEmpty } from './empty.pb'
 
+
+export enum ESex {
+  SexNone = 0,   // 无意义占位用
+  SexMale = 1,   // 男性
+  SexFemale = 2  // 女性
+}
+
 export interface IRequestUsers {
-  page?: (number | null)      // 页码
-  page_size?: (number | null) // 每页数量
+  page: number      // 页码
+  page_size: number // 每页数量
 }
 
 export interface IUser {
   id?: (number | null)       // 主键ID
   username?: (string | null) // 用户名
   email?: (string | null)    // 邮箱
+  sex?: (ESex | null)        // 性别
 }
 
 export interface IResponseUsers {
