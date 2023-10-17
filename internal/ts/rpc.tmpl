@@ -1,0 +1,8 @@
+{{.Leading}}
+export function {{.Name}}(params: I{{.Input}}): Promise<Response<I{{.Output}}>> {
+  return request({
+    url: "{{.Url}}",
+    method: "{{.Method}}",
+    {{ if (eq .Method "GET" )}}params, {{ else }}data, {{ end }}
+  })
+}

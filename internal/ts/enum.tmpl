@@ -1,0 +1,5 @@
+export enum E{{.Name}} {
+{{- range .Fields}}
+  {{.FieldName}} {{.Space}}= {{.Number}}, {{.Trailing}}
+{{- end}}
+}

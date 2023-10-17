@@ -1,6 +1,7 @@
 package ts
 
 import (
+	_ "embed"
 	"fmt"
 	"github.com/ShuaiGao/protoc-gen-bic/internal/utils"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -151,44 +152,6 @@ func getTsFieldType(file *protogen.File, field *protogen.Field, required, isList
 
 var interfaceCache = map[string]bool{}
 
-type TsField struct {
-	fieldName string
-	fieldType string
-	trailing  string
-	Required  bool
-	IsList    bool
-	totalLen  int
-}
-
-func (tf *TsField) ToString(maxLen int) string {
-	space := ""
-	for i := 0; i < maxLen-tf.totalLen; i++ {
-		space += " "
-	}
-	return fmt.Sprintf("  %s: %s %s%s", tf.fieldName, tf.fieldType, space, tf.trailing)
-}
-
-type TsEnum struct {
-	fieldName string
-	number    string
-	trailing  string
-	lastOne   bool
-}
-
-func (te *TsEnum) GetLen() int {
-	return len(te.fieldName) + len(te.number)
-}
-func (te *TsEnum) ToString(maxLen int) string {
-	space := ""
-	for i := 0; i < maxLen-te.GetLen(); i++ {
-		space += " "
-	}
-	if te.lastOne {
-		return fmt.Sprintf("  %s = %s  %s%s", te.fieldName, te.number, space, te.trailing)
-	}
-	return fmt.Sprintf("  %s = %s, %s%s", te.fieldName, te.number, space, te.trailing)
-}
-
 var recursionMap = make(map[string]bool)
 
 func getTsImportPath(path string) string {
@@ -215,46 +178,46 @@ func genTsInterface(g *protogen.GeneratedFile, file *protogen.File, message *pro
 					genTsInterface(g, file, ff.Message)
 				}
 				//g.P("export interface I", ff.Message.GoIdent.GoName, " {")
-				//var fieldList []*TsField
-				//var maxLen = 0
+				//var fieldList []*InterfaceField
+				//var MaxLen = 0
 				//for _, field := range ff.Message.Fields {
 				//	required := strings.Contains(field.Comments.Leading.String(), "required")
-				//	tmp := &TsField{
-				//		fieldName: getTsFieldName(string(field.Desc.Name()), required),
-				//		fieldType: getTsFieldType(file, field, required, field.Desc.IsList()),
-				//		trailing:  strings.TrimSpace(field.Comments.Trailing.String()),
+				//	tmp := &InterfaceField{
+				//		FieldName: getTsFieldName(string(field.Desc.Name()), required),
+				//		FieldType: getTsFieldType(file, field, required, field.Desc.IsList()),
+				//		Trailing:  strings.TrimSpace(field.Comments.Trailing.String()),
 				//		Required:  required,
 				//		IsList:    field.Desc.IsList(),
 				//	}
 				//	if field.Desc.IsExtension() {
-				//		tmp.trailing += " // Extension"
+				//		tmp.Trailing += " // Extension"
 				//	}
-				//	tmp.totalLen = len(tmp.fieldType) + len(tmp.fieldName)
+				//	tmp.TotalLen = len(tmp.FieldType) + len(tmp.FieldName)
 				//	fieldList = append(fieldList, tmp)
-				//	if tmp.totalLen > maxLen {
-				//		maxLen = tmp.totalLen
+				//	if tmp.TotalLen > MaxLen {
+				//		MaxLen = tmp.TotalLen
 				//	}
 				//}
 				//for _, v := range fieldList {
-				//	g.P(v.ToString(maxLen))
+				//	g.P(v.ToString(MaxLen))
 				//}
 				//g.P("}")
 				//interfaceCache[ff.Message.GoIdent.GoName] = true
 			} else if ff.Desc.Kind() == protoreflect.EnumKind {
 				if _, ook := interfaceCache[ff.Enum.GoIdent.GoName]; !ook {
 					g.P("export enum E", ff.Enum.GoIdent.GoName, " {")
-					var enumLine []*TsEnum
+					var enumLine []*EnumField
 					var maxLen = 0
 					for i, v := range ff.Enum.Values {
 						comments := strings.TrimSpace(v.Comments.Trailing.String())
-						tmp := &TsEnum{string(v.Desc.Name()), fmt.Sprintf("%d", v.Desc.Number()), comments, i == len(ff.Enum.Values)-1}
+						tmp := &EnumField{string(v.Desc.Name()), fmt.Sprintf("%d", v.Desc.Number()), comments, i == len(ff.Enum.Values)-1, ""}
 						enumLine = append(enumLine, tmp)
 						if tmp.GetLen() > maxLen {
 							maxLen = tmp.GetLen()
 						}
 					}
 					for _, v := range enumLine {
-						g.P(v.ToString(maxLen))
+						g.P(v.String(maxLen))
 					}
 					g.P("}")
 				}
@@ -263,28 +226,28 @@ func genTsInterface(g *protogen.GeneratedFile, file *protogen.File, message *pro
 		}
 		name = "I" + message.GoIdent.GoName
 		g.P("export interface I", message.GoIdent.GoName, " {")
-		var fieldList []*TsField
+		var fieldList []*InterfaceField
 		var maxLen = 0
 		for _, field := range message.Fields {
 			required := strings.Contains(field.Comments.Leading.String(), utils.Required)
-			tmp := &TsField{
-				fieldName: getTsFieldName(string(field.Desc.Name()), required),
-				fieldType: getTsFieldType(file, field, required, field.Desc.IsList(), field.Desc.IsMap()),
-				trailing:  strings.TrimSpace(field.Comments.Trailing.String()),
+			tmp := &InterfaceField{
+				FieldName: getTsFieldName(string(field.Desc.Name()), required),
+				FieldType: getTsFieldType(file, field, required, field.Desc.IsList(), field.Desc.IsMap()),
+				Trailing:  strings.TrimSpace(field.Comments.Trailing.String()),
 				Required:  required,
 				IsList:    field.Desc.IsList(),
 			}
 			if field.Desc.IsExtension() {
-				tmp.trailing += " // Extension"
+				tmp.Trailing += " // Extension"
 			}
-			tmp.totalLen = len(tmp.fieldType) + len(tmp.fieldName)
+			tmp.TotalLen = len(tmp.FieldType) + len(tmp.FieldName)
 			fieldList = append(fieldList, tmp)
-			if tmp.totalLen > maxLen {
-				maxLen = tmp.totalLen
+			if tmp.TotalLen > maxLen {
+				maxLen = tmp.TotalLen
 			}
 		}
 		for _, v := range fieldList {
-			g.P(v.ToString(maxLen))
+			g.P(v.String(maxLen))
 		}
 		if len(fieldList) == 0 {
 			g.P("  __placeholder__?: any")
@@ -372,31 +335,45 @@ func genTsPath(file *protogen.File) map[string][]string {
 	return importCache
 }
 
-func genTsEnum(g *protogen.GeneratedFile, enum *protogen.Enum) {
+func genTsEnum(g *protogen.GeneratedFile, enum *protogen.Enum) *Enum {
 	// enum类型的完整类型名
-	g.P(strings.TrimSpace(enum.Comments.Leading.String()))
-	g.P("export enum E", enum.GoIdent.GoName, " {")
-	var enumLine []*TsEnum
-	var maxLen = 0
+	e := Enum{
+		Name:     enum.GoIdent.GoName,
+		Leading:  strings.TrimSpace(enum.Comments.Leading.String()),
+		Trailing: strings.TrimSpace(enum.Comments.Trailing.String()),
+		MaxLen:   0,
+	}
 	for i, v := range enum.Values {
-		comments := strings.TrimSpace(v.Comments.Trailing.String())
-		tmp := &TsEnum{string(v.Desc.Name()), fmt.Sprintf("%d", v.Desc.Number()), comments, i == len(enum.Values)-1}
-		enumLine = append(enumLine, tmp)
-		if tmp.GetLen() > maxLen {
-			maxLen = tmp.GetLen()
-		}
+		e.AddField(&EnumField{
+			FieldName: string(v.Desc.Name()),
+			Number:    fmt.Sprintf("%d", v.Desc.Number()),
+			Trailing:  strings.TrimSpace(v.Comments.Trailing.String()),
+			LastOne:   i == len(enum.Values)-1,
+		})
 	}
-	for _, v := range enumLine {
-		g.P(v.ToString(maxLen))
-	}
-	g.P("}")
-	g.P("")
-	interfaceCache[enum.GoIdent.GoName] = true
+	//
+	//g.P(strings.TrimSpace(enum.Comments.Leading.String()))
+	//g.P("export enum E", enum.GoIdent.GoName, " {")
+	//var enumLine []*EnumField
+	//var MaxLen = 0
+	//for i, v := range enum.Values {
+	//	comments := strings.TrimSpace(v.Comments.Trailing.String())
+	//	tmp := &EnumField{string(v.Desc.Name()), fmt.Sprintf("%d", v.Desc.Number()), comments, i == len(enum.Values)-1}
+	//	enumLine = append(enumLine, tmp)
+	//}
+	//for _, v := range enumLine {
+	//	g.P(v.ToString(MaxLen))
+	//}
+	//g.P("}")
+	//g.P("")
+	interfaceCache[e.Name] = true
+	return &e
 }
 
 func genTsEnums(file *protogen.File, g *protogen.GeneratedFile) {
 	for _, enum := range file.Enums {
-		genTsEnum(g, enum)
+		e := genTsEnum(g, enum)
+		g.P(e.String())
 	}
 }
 
@@ -418,7 +395,7 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 			for _, p := range httpParam.UrlParamList {
 				g.P(" * @Param { ", getTsUrlParamTypeShow(p.PType), " } ", p.PName, " - ")
 			}
-			if value.Input.GoIdent.GoName != "CommonNil" || value.Input.GoIdent.GoName != "Empty" {
+			if value.Input.GoIdent.GoName != "CommonNil" && value.Input.GoIdent.GoName != "Empty" {
 				if httpParam.MethodName == "GET" {
 					//g.P(" * @param params - ")
 				} else {
