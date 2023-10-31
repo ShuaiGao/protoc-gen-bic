@@ -298,7 +298,7 @@ func genTsPath(file *protogen.File) map[string][]string {
 			} else if field.Desc.Kind() == protoreflect.MessageKind {
 				messagePath := field.Message.Desc.ParentFile().Path()
 				if messagePath != file.Desc.Path() {
-					appendPath(importCache, getTsImportPath(messagePath), "I"+field.GoIdent.GoName)
+					appendPath(importCache, getTsImportPath(messagePath), "I"+field.Message.GoIdent.GoName)
 				}
 			} else if field.Desc.Kind() == protoreflect.EnumKind {
 				enumPath := field.Enum.Desc.ParentFile().Path()
