@@ -1,6 +1,7 @@
 package ts
 
 import (
+	_ "embed"
 	"fmt"
 	"strings"
 	"text/template"
@@ -22,8 +23,11 @@ func (e *Enum) AddField(field *EnumField) {
 	e.Fields = append(e.Fields, field)
 }
 
+//go:embed enum.tmpl
+var enumTmpl []byte
+
 func (e *Enum) String() (string, error) {
-	temp, err := template.ParseFiles("enum.tmpl")
+	temp, err := template.New("enum").Parse(string(enumTmpl))
 	if err != nil {
 		return "", nil
 	}

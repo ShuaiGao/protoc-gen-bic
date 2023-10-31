@@ -49,11 +49,11 @@ func generateTsFileContent(gen *protogen.Plugin, file *protogen.File, g *protoge
 	}
 	// 生成对象
 	for _, service := range file.Services {
-		//g.P("export function", service.GoName, " struct {")
-		//g.P("    xx ", service.GoName)
-		//g.P("}")
-		//g.P()
-		genTsApi(gen, file, g, service, omitempty)
+		serviceParam := utils.ParseServiceLeading(service.Comments.Leading.String())
+		if serviceParam.Root != "" {
+			g.P(`const UrlRoot = "`, serviceParam.Root, `";`)
+		}
+		genTsApi(gen, file, g, service, serviceParam)
 		g.P()
 	}
 }
@@ -118,11 +118,7 @@ func getTsFieldType(file *protogen.File, field *protogen.Field, required, isList
 		kindName = "I" + field.Desc.Kind().String()
 	}
 	if isList {
-		if required {
-			return fmt.Sprintf("%s[]", kindName)
-		} else {
-			return fmt.Sprintf("(%s[] | null)", kindName)
-		}
+		return fmt.Sprintf("(%s[] | null)", kindName)
 	} else if isMap {
 		keyKind := tsTypeMap[field.Desc.MapKey().Kind()]
 		valueKind := field.Desc.MapValue().Kind()
@@ -136,17 +132,9 @@ func getTsFieldType(file *protogen.File, field *protogen.Field, required, isList
 		} else {
 			valueKindStr = "NotSupport"
 		}
-		if required {
-			return fmt.Sprintf("{[k :%s]: %s}", keyKind, valueKindStr)
-		} else {
-			return fmt.Sprintf("{[k :%s]: %s} | null", keyKind, valueKindStr)
-		}
+		return fmt.Sprintf("{[k :%s]: %s} | null", keyKind, valueKindStr)
 	} else {
-		if required {
-			return kindName
-		} else {
-			return fmt.Sprintf("(%s | null)", kindName)
-		}
+		return fmt.Sprintf("(%s | null)", kindName)
 	}
 }
 
@@ -373,11 +361,15 @@ func genTsEnum(g *protogen.GeneratedFile, enum *protogen.Enum) *Enum {
 func genTsEnums(file *protogen.File, g *protogen.GeneratedFile) {
 	for _, enum := range file.Enums {
 		e := genTsEnum(g, enum)
-		g.P(e.String())
+		if enumStr, err := e.String(); err == nil {
+			g.P(enumStr)
+		} else {
+			g.P("// ", err.Error())
+		}
 	}
 }
 
-func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
+func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, param utils.ServiceParam) {
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P("//")
 		g.P(utils.DeprecationComment)
@@ -443,7 +435,11 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 		url = delTypeRe.ReplaceAllString(url, `" + $1`)
 
 		g.P("  return request({")
-		g.P("    url: \"", url, "\",")
+		if param.Root != "" {
+			g.P("    url: \"UrlRoot + ", url, "\",")
+		} else {
+			g.P("    url: \"", url, "\",")
+		}
 		g.P("    method: \"", httpParam.MethodName, "\",")
 		for _, v := range httpParam.ClientParamList {
 			g.P(`    ` + v.Key + `: ` + v.Value + `,`)

@@ -51,7 +51,11 @@ func generateJsFileContent(gen *protogen.Plugin, file *protogen.File, g *protoge
 	}
 	// 生成对象
 	for _, service := range file.Services {
-		genJsApi(gen, file, g, service, omitempty)
+		serviceParam := utils.ParseServiceLeading(service.Comments.Leading.String())
+		if serviceParam.Root != "" {
+			g.P(`const UrlRoot = "`, serviceParam.Root, `";`)
+		}
+		genJsApi(gen, file, g, service, serviceParam)
 		g.P()
 	}
 }
@@ -423,7 +427,7 @@ func genJsEnum(g *protogen.GeneratedFile, enum *protogen.Enum) {
 	interfaceCacheJs[enum.GoIdent.GoName] = true
 }
 
-func genJsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, omitempty bool) {
+func genJsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service, param utils.ServiceParam) {
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P("//")
 		g.P(utils.DeprecationComment)
@@ -509,7 +513,11 @@ func genJsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 		url = delTypeRe.ReplaceAllString(url, `" + $1`)
 
 		g.P("  return request({")
-		g.P("    url: \"", url, "\",")
+		if param.Root != "" {
+			g.P("    url: \"UrlRoot + ", url, "\",")
+		} else {
+			g.P("    url: \"", url, "\",")
+		}
 		g.P("    method: \"", httpParam.MethodName, "\",")
 		for _, v := range httpParam.ClientParamList {
 			g.P(`    ` + v.Key + `: ` + v.Value + `,`)

@@ -191,6 +191,10 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	// 自动生成服务调用接口
 	for _, service := range file.Services {
 		g.P("func Register", service.GoName, "HttpHandler(g *gin.RouterGroup,", "srvs ", service.GoName, ") {")
+		param := utils.ParseServiceLeading(service.Comments.Leading.String())
+		if param.Root != "" {
+			g.P(`g = g.Group("`, param.Root, `")`)
+		}
 		g.P("  tmp := &", "x_", service.GoName, "{ xx: srvs }")
 		for _, value := range service.Methods {
 			// g.Annotate(value.GoName, value.Location)

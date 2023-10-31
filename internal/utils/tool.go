@@ -91,6 +91,12 @@ func ParseRpcLeading(comm string, funcName string) (param HTTPParam) {
 	summary := summaryPermission.FindSubmatch([]byte(comm))
 	if len(summary) > 1 {
 		param.Summary = strings.TrimSpace(string(summary[1]))
+	} else {
+		regexpDoc := regexp.MustCompile(`(?i)@doc\s*:\s*([^@$]*)`)
+		doc := regexpDoc.FindSubmatch([]byte(comm))
+		if len(doc) > 1 {
+			param.Summary = strings.TrimSpace(string(doc[1]))
+		}
 	}
 
 	returnPermission := regexp.MustCompile(`(?i)@void`)
@@ -117,4 +123,19 @@ func ParseRpcLeading(comm string, funcName string) (param HTTPParam) {
 		}
 	}
 	return
+}
+
+type ServiceParam struct {
+	Root string
+}
+
+func ParseServiceLeading(comments string) ServiceParam {
+	re := regexp.MustCompile(`(?i)@root\s*:\s*([^@$]*)`)
+	rootUrls := re.FindSubmatch([]byte(comments))
+
+	var param ServiceParam
+	if len(rootUrls) > 1 {
+		param.Root = strings.TrimSpace(string(rootUrls[1]))
+	}
+	return param
 }
