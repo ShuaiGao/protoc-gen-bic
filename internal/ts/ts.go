@@ -117,11 +117,7 @@ func getTsFieldType(file *protogen.File, field *protogen.Field, required, isList
 		kindName = "I" + field.Desc.Kind().String()
 	}
 	if isList {
-		if required {
-			return fmt.Sprintf("%s[]", kindName)
-		} else {
-			return fmt.Sprintf("(%s[] | null)", kindName)
-		}
+		return fmt.Sprintf("(%s[] | null)", kindName)
 	} else if isMap {
 		keyKind := tsTypeMap[field.Desc.MapKey().Kind()]
 		valueKind := field.Desc.MapValue().Kind()
@@ -135,17 +131,9 @@ func getTsFieldType(file *protogen.File, field *protogen.Field, required, isList
 		} else {
 			valueKindStr = "NotSupport"
 		}
-		if required {
-			return fmt.Sprintf("{[k :%s]: %s}", keyKind, valueKindStr)
-		} else {
-			return fmt.Sprintf("{[k :%s]: %s} | null", keyKind, valueKindStr)
-		}
+		return fmt.Sprintf("{[k :%s]: %s} | null", keyKind, valueKindStr)
 	} else {
-		if required {
-			return kindName
-		} else {
-			return fmt.Sprintf("(%s | null)", kindName)
-		}
+		return fmt.Sprintf("(%s | null)", kindName)
 	}
 }
 
@@ -347,7 +335,7 @@ func genTsPath(file *protogen.File) map[string][]string {
 			} else if field.Desc.Kind() == protoreflect.MessageKind {
 				messagePath := field.Message.Desc.ParentFile().Path()
 				if messagePath != file.Desc.Path() {
-					appendPath(importCache, getTsImportPath(messagePath), "I"+field.GoIdent.GoName)
+					appendPath(importCache, getTsImportPath(messagePath), "I"+field.Message.GoIdent.GoName)
 				}
 			} else if field.Desc.Kind() == protoreflect.EnumKind {
 				enumPath := field.Enum.Desc.ParentFile().Path()
