@@ -27,3 +27,33 @@ func TestParseServiceLeading(t *testing.T) {
 		})
 	}
 }
+
+func TestParseRpcLeading(t *testing.T) {
+	type args struct {
+		comm     string
+		funcName string
+	}
+	tests := []struct {
+		name      string
+		args      args
+		wantParam HTTPParam
+	}{
+		{name: "get", args: args{comm: "", funcName: "GetName"}, wantParam: HTTPParam{MethodName: "GET"}},
+		{name: "uint", args: args{comm: "@url:/hello/<uint:id>/", funcName: "GetName"}, wantParam: HTTPParam{
+			MethodName: "GET", Url: "/hello/:id/", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}},
+		}},
+		{name: "uint", args: args{comm: "@url:/hello/<uint:id>", funcName: "GetName"}, wantParam: HTTPParam{
+			MethodName: "GET", Url: "/hello/:id", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}},
+		}},
+		{name: "uint", args: args{comm: "@url:/hello/<uint:id> @method:GET", funcName: "GetName"}, wantParam: HTTPParam{
+			MethodName: "GET", Url: "/hello/:id", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}},
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotParam := ParseRpcLeading(tt.args.comm, tt.args.funcName); !reflect.DeepEqual(gotParam, tt.wantParam) {
+				t.Errorf("ParseRpcLeading() = %v, want %v", gotParam, tt.wantParam)
+			}
+		})
+	}
+}

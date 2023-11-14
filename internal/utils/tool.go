@@ -55,7 +55,7 @@ func ParseRpcLeading(comm string, funcName string) (param HTTPParam) {
 			break
 		}
 	}
-	re := regexp.MustCompile(`(?i)@url\s*:\s*(/.*/)`)
+	re := regexp.MustCompile(`(?i)@url\s*:\s*(/.*)\s`)
 	urls := re.FindSubmatch([]byte(comm))
 	if len(urls) > 1 {
 		param.Url = strings.TrimSpace(string(urls[1]))
