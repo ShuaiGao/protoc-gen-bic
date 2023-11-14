@@ -309,47 +309,15 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			g.P("// @Param ", p.PName, " path ", p.PType, " true ", `"some id"`)
 		}
 		for _, ff := range value.Input.Fields {
-			trailing := ff.Comments.Trailing.String()
 			query := "query"
 			if httpParam.MethodName == "POST" || httpParam.MethodName == "PATCH" {
 				query = "body"
 			}
-			kindName := ff.Desc.Kind().String()
-			if ff.Enum != nil {
-				kindNames := strings.Split(string(ff.Enum.Desc.FullName()), ".")
-				if len(kindNames) < 3 {
-					kindName = string(ff.Enum.Desc.Name())
-				} else {
-					kindName = strings.Join(kindNames[1:], "_")
-				}
-			} else if ff.Desc.IsList() && ff.Desc.Message() != nil {
-				kindName = fmt.Sprintf("[]%s", ff.Desc.Message().Name())
-			}
-			if kindName == "message" {
-				kindName = string(ff.Desc.Message().Name())
-				if kindName == "DataEntry" {
-					// TODO 处理 map 类型
-					kindName = "object"
-				}
-			} else if kindName == "bytes" {
-				kindName = "[]byte"
-			} else if kindName == "float" {
-				kindName = "float32"
-			} else if kindName == "double" {
-				kindName = "float64"
-			}
-			if ff.Desc.IsList() {
-				if ff.Desc.Enum() != nil {
-					kindName = "int32"
-				}
-				if !strings.HasPrefix(kindName, "[]") {
-					kindName = "[]" + kindName
-				}
-			}
-			if len(trailing) > 2 {
-				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, " ", fieldRequired(ff), ` "`, strings.TrimSpace(ff.Comments.Trailing.String()[2:]), `"`)
+			fp := utils.ParseFieldLeading(ff)
+			if len(fp.FTail) > 0 {
+				g.P("// @Param ", fp.FName, " ", query, " ", fp.FType, " ", fp.FRequired, ` "`, fp.FTail, `" `, fp.GetEnums())
 			} else {
-				g.P("// @Param ", JSONSnakeCase(ff.GoName), " ", query, " ", kindName, " ", fieldRequired(ff), ` "参数无注释"`)
+				g.P("// @Param ", fp.FName, " ", query, " ", fp.FType, " ", fp.FRequired, ` "参数无注释" `, fp.GetEnums())
 			}
 		}
 
