@@ -446,15 +446,15 @@ func genTsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 		} else {
 			g.P("export function ", value.GoName, "(): Promise<Response<"+output+">> {")
 		}
-		url := httpParam.Url
+		url := `"` + httpParam.Url + `"`
 		delTypeRe := regexp.MustCompile(`:(\w+)/`)
 		url = delTypeRe.ReplaceAllString(url, `" + $1 + "/`)
 
-		delTypeRe = regexp.MustCompile(`:(\w+)$`)
+		delTypeRe = regexp.MustCompile(`:(\w+)"$`)
 		url = delTypeRe.ReplaceAllString(url, `" + $1`)
 
 		g.P("  return request({")
-		g.P("    url: \"", url, "\",")
+		g.P("    url: ", url, ",")
 		g.P("    method: \"", httpParam.MethodName, "\",")
 		for _, v := range httpParam.ClientParamList {
 			g.P(`    ` + v.Key + `: ` + v.Value + `,`)
