@@ -6,7 +6,6 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
-	"regexp"
 	"strings"
 )
 
@@ -505,18 +504,11 @@ func genJsApi(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFi
 		} else {
 			g.P("export function ", value.GoName, "() {")
 		}
-		url := httpParam.Url
-		delTypeRe := regexp.MustCompile(`:(\w+)/`)
-		url = delTypeRe.ReplaceAllString(url, `" + $1 + "/`)
-
-		delTypeRe = regexp.MustCompile(`:(\w+)$`)
-		url = delTypeRe.ReplaceAllString(url, `" + $1`)
-
 		g.P("  return request({")
 		if param.Root != "" {
-			g.P("    url: \"UrlRoot + ", url, "\",")
+			g.P("    url: UrlRoot + ", httpParam.UrlJsTs, ",")
 		} else {
-			g.P("    url: \"", url, "\",")
+			g.P("    url: ", httpParam.UrlJsTs, ",")
 		}
 		g.P("    method: \"", httpParam.MethodName, "\",")
 		for _, v := range httpParam.ClientParamList {
