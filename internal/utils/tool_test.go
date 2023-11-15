@@ -57,3 +57,26 @@ func TestParseRpcLeading(t *testing.T) {
 		})
 	}
 }
+
+func Test_genTsJsUrl(t *testing.T) {
+	type args struct {
+		url string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{name: "url-1", args: args{url: "/hello/world"}, want: `"/hello/world"`},
+		{name: "url-2", args: args{url: "/hello/:id"}, want: `"/hello/" + id`},
+		{name: "url-3", args: args{url: "/hello/:id/world"}, want: `"/hello/" + id + "/world"`},
+		{name: "url-4", args: args{url: "/hello/:id/world/"}, want: `"/hello/" + id + "/world/"`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := genTsJsUrl(tt.args.url); got != tt.want {
+				t.Errorf("genTsJsUrl() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

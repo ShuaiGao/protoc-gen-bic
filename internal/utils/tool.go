@@ -27,11 +27,22 @@ type HTTPParam struct {
 	Summary         string
 	MethodName      string
 	Url             string
+	UrlJsTs         string
 	UrlParamList    []URLParam
 	Permission      string
 	Void            bool
 	ClientParamList []ClientParam
 	Download        bool
+}
+
+func genTsJsUrl(url string) string {
+	tmp := fmt.Sprintf(`"%s"`, url)
+	urlTypeRe := regexp.MustCompile(`:(\w+)/`)
+	tmp = urlTypeRe.ReplaceAllString(tmp, `" + $1 + "/`)
+
+	urlTypeRe = regexp.MustCompile(`:(\w+)"$`)
+	tmp = urlTypeRe.ReplaceAllString(tmp, `" + $1`)
+	return tmp
 }
 
 // ParseRpcLeading 解析rpc方法注释
@@ -80,6 +91,7 @@ func ParseRpcLeading(comm string, funcName string) (param HTTPParam) {
 	}
 	delTypeRe := regexp.MustCompile(`<(\w+):(\w+)>`)
 	param.Url = delTypeRe.ReplaceAllString(param.Url, ":$2")
+	param.UrlJsTs = genTsJsUrl(param.Url)
 
 	rePermission := regexp.MustCompile(`(?i)@permission\s*:\s*(\w*)`)
 	objs := rePermission.FindSubmatch([]byte(comm))
