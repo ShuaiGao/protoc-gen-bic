@@ -373,6 +373,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 					g.P(`        "code": 400,`)
 					g.P(`        "detail": "param `, p.PName, ` should be int",`)
 					g.P("    })")
+					g.P("    return")
 					g.P("}")
 				} else if p.PType == utils.StringType {
 					g.P(p.PName, ` := ctx.Param("`, p.PName, `")`)
