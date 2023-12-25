@@ -33,6 +33,7 @@ type HTTPParam struct {
 	Void            bool
 	ClientParamList []ClientParam
 	Download        bool
+	Bind            bool
 }
 
 func genTsJsUrl(url string) string {
@@ -115,6 +116,12 @@ func ParseRpcLeading(comm string, funcName string) (param HTTPParam) {
 	void := returnPermission.FindSubmatch([]byte(comm))
 	if len(void) > 0 {
 		param.Void = true
+	}
+
+	bindRe := regexp.MustCompile(`(?i)@bind`)
+	bind := bindRe.FindSubmatch([]byte(comm))
+	if len(bind) > 0 {
+		param.Bind = true
 	}
 
 	downloadPermission := regexp.MustCompile(`(?i)@download`)
