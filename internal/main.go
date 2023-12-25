@@ -334,7 +334,9 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		if value.Input.GoIdent.GoName != "CommonNil" && value.Input.GoIdent.GoName != "Empty" {
 			req = ",req"
 			g.P("  req := &", value.Input.GoIdent, "{}")
-			if httpParam.MethodName == "GET" {
+			if httpParam.Bind {
+				g.P("  if err := ctx.ShouldBind(req); err != nil {")
+			} else if httpParam.MethodName == "GET" {
 				g.P("  if err := ctx.ShouldBindQuery(req); err != nil {")
 			} else {
 				g.P("  if err := ctx.ShouldBindJSON(req); err != nil {")
@@ -369,6 +371,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 					g.P(`        "code": int(ErrCode_param_error),`)
 					g.P(`        "detail": "param `, p.PName, ` should be int",`)
 					g.P("    })")
+					g.P("    return")
 					g.P("}")
 				} else if p.PType == utils.StringType {
 					g.P(p.PName, ` := ctx.Param("`, p.PName, `")`)
