@@ -20,6 +20,7 @@ import (
 // SupportedFeatures reports the set of supported protobuf language features.
 var SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 var PermissionPkg string
+var AutoValidate = false
 
 // GenerateFile generates the contents of a .pb.go file.
 func GenerateFile(gen *protogen.Plugin, file *protogen.File) *protogen.GeneratedFile {
@@ -126,6 +127,10 @@ func generateFile(gen *protogen.Plugin, file *protogen.File, omitempty bool) *pr
 	return g
 }
 
+func getValidateName(serviceName string) string {
+	return serviceName + "Validate"
+}
+
 // generateFileContent generates the kratos errors definitions, excluding the package statement.
 func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, omitempty bool) {
 	if len(file.Services) == 0 {
@@ -166,8 +171,12 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	}
 	g.P()
 	g.P(`"github.com/gin-gonic/gin"`)
-	//g.P(`"github.com/GodWY/bic/service"`)
+	g.P(`"github.com/go-playground/validator/v10"`)
 	g.P(")")
+
+	for _, service := range file.Services {
+		g.P("var ", getValidateName(service.GoName), " = validator.New()")
+	}
 
 	// 读取注释里的导入的包
 
@@ -349,10 +358,19 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			g.P("     return")
 			g.P("   }")
 
-			//g.P("if err := gen.Validate.Struct(req); err != nil {")
-			//g.P(` 	  ctx.JSON(http.StatusOK, gen.Response{400, " request param validator error", nil})`)
-			//g.P("     return")
-			//g.P("}")
+			if AutoValidate {
+				g.P("if err := ", getValidateName(service.GoName), ".Struct(req); err != nil {")
+				g.P(`    msg := "request param validator error"`)
+				g.P("    if gin.Mode() == gin.DebugMode {")
+				g.P(` 	      msg = msg + " | " + err.Error()`)
+				g.P("    }")
+				g.P("    ctx.JSON(http.StatusBadRequest, gin.H{")
+				g.P(`        "code": 400,`)
+				g.P(`        "detail": msg,`)
+				g.P("    })")
+				g.P("    return")
+				g.P("}")
+			}
 		}
 		if len(httpParam.UrlParamList) > 0 {
 			var paramList []string

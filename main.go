@@ -28,6 +28,7 @@ func main() {
 		plugins = flags.String("plugins", "", "deprecated option")
 	)
 
+	autoValidate := flags.Bool("auto_validate", true, "自动通过validate校验")
 	tsDir := flags.String("ts_dir", "", "ts文件生成目录")
 	jsDir := flags.String("js_dir", "", "js文件生成目录")
 	permissionPKG := flags.String("permission_pkg", "", "权限校验包名")
@@ -48,6 +49,7 @@ func main() {
 				} else if len(*jsDir) > 0 {
 					js.GenerateJsFile(gen, f, *jsDir)
 				} else {
+					internal.AutoValidate = *autoValidate
 					internal.GenerateFile(gen, f)
 				}
 			}
