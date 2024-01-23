@@ -38,15 +38,16 @@ func TestParseRpcLeading(t *testing.T) {
 		args      args
 		wantParam HTTPParam
 	}{
-		{name: "get", args: args{comm: "", funcName: "GetName"}, wantParam: HTTPParam{MethodName: "GET"}},
+		{name: "get", args: args{comm: "", funcName: "GetName"}, wantParam: HTTPParam{MethodName: "GET", UrlJsTs: `""`}},
+		{name: "post", args: args{comm: "", funcName: "PostGetName"}, wantParam: HTTPParam{MethodName: "POST", UrlJsTs: `""`}},
 		{name: "uint", args: args{comm: "@url:/hello/<uint:id>/", funcName: "GetName"}, wantParam: HTTPParam{
-			MethodName: "GET", Url: "/hello/:id/", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}},
+			MethodName: "GET", Url: "/hello/:id/", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}}, UrlJsTs: `"/hello/" + id + "/"`,
 		}},
 		{name: "uint", args: args{comm: "@url:/hello/<uint:id>", funcName: "GetName"}, wantParam: HTTPParam{
-			MethodName: "GET", Url: "/hello/:id", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}},
+			MethodName: "GET", Url: "/hello/:id", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}}, UrlJsTs: `"/hello/" + id`,
 		}},
 		{name: "uint", args: args{comm: "@url:/hello/<uint:id> @method:GET", funcName: "GetName"}, wantParam: HTTPParam{
-			MethodName: "GET", Url: "/hello/:id", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}},
+			MethodName: "GET", Url: "/hello/:id", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}}, UrlJsTs: `"/hello/" + id`,
 		}},
 	}
 	for _, tt := range tests {
