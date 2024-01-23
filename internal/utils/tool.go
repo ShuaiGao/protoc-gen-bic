@@ -53,7 +53,7 @@ func ParseRpcLeading(comm string, funcName string) (param HTTPParam) {
 
 	for _, m := range supportMethods {
 		// 匹配方法命名规则
-		matched, err := regexp.MatchString(`(?i)`+m+`\w+`, funcName)
+		matched, err := regexp.MatchString(`^(?i)`+m+`\w+`, funcName)
 		if err == nil && matched {
 			param.MethodName = m
 			break
