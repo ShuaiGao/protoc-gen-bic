@@ -1,6 +1,6 @@
 package utils
 
-var VERSION = "2.0.5"
+var VERSION = "2.1.4"
 
 const DeprecationComment = "// Deprecated: Do not use."
 const StringType = "string"

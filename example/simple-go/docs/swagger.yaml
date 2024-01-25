@@ -32,16 +32,70 @@ info:
   title: xxx系统api文档
   version: "1.0"
 paths:
+  /user/v1/:id:
+    get:
+      parameters:
+      - description: some id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.User'
+        "401":
+          description: header need Authorization data
+          schema:
+            type: string
+        "403":
+          description: no api permission or no obj permission
+          schema:
+            type: string
+      summary: 获取用户详情
+      tags:
+      - User-Service
+  /user/v1/:id/download:
+    get:
+      parameters:
+      - description: some id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResponseNil'
+        "401":
+          description: header need Authorization data
+          schema:
+            type: string
+        "403":
+          description: no api permission or no obj permission
+          schema:
+            type: string
+      summary: 用户下载
+      tags:
+      - User-Service
   /users/v1/:
     get:
       parameters:
       - description: 页码
         in: query
         name: page
+        required: true
         type: integer
       - description: 每页数量
         in: query
         name: page_size
+        required: true
         type: integer
       produces:
       - application/json
@@ -78,6 +132,12 @@ paths:
         name: email
         schema:
           type: string
+      - description: 性别
+        in: body
+        name: sex
+        schema:
+          description: 性别
+          type: integer
       produces:
       - application/json
       responses:
@@ -94,32 +154,6 @@ paths:
           schema:
             type: string
       summary: 添加用户
-      tags:
-      - User-Service
-  /users/v1/:id/:
-    get:
-      parameters:
-      - description: some id
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.ResponseNil'
-        "401":
-          description: header need Authorization data
-          schema:
-            type: string
-        "403":
-          description: no api permission or no obj permission
-          schema:
-            type: string
-      summary: 用户下载
       tags:
       - User-Service
   /users/v1/common/nil/:

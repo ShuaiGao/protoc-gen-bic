@@ -45,9 +45,9 @@ service user_service{
   rpc GetUsers(RequestUsers) returns (ResponseUsers);
   // @Summary: 添加用户 @url:/users/v1/ @method:Post
   rpc PostUsers(User) returns (ResponseNil);
-  // @Summary: 获取用户详情 @url:/users/v1/<uint:id>/ @method:Get
+  // @Summary: 获取用户详情 @url:/user/v1/<uint:id> @method:Get
   rpc GetUserInfo(RequestNil) returns (User);
-  // @Summary: 用户下载 @url:/users/v1/<uint:id>/ @method:Get @Download
+  // @Summary: 用户下载 @url:/user/v1/<uint:id>/download @method:Get @Download
   rpc GetUserInfoDownload(RequestNil) returns (ResponseNil);
   // @Summary: 空参数示例1 @url:/users/v1/common/nil/ @method:Get
   rpc GetCommonNil(CommonNil) returns (User);

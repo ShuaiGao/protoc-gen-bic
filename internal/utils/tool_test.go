@@ -49,6 +49,9 @@ func TestParseRpcLeading(t *testing.T) {
 		{name: "uint", args: args{comm: "@url:/hello/<uint:id> @method:GET", funcName: "GetName"}, wantParam: HTTPParam{
 			MethodName: "GET", Url: "/hello/:id", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}}, UrlJsTs: `"/hello/" + id`,
 		}},
+		{name: "uint2", args: args{comm: "@url:/hello/<uint:id>/world @method:GET", funcName: "GetName"}, wantParam: HTTPParam{
+			MethodName: "GET", Url: "/hello/:id/world", UrlParamList: []URLParam{{PType: UIntType, PName: "id"}}, UrlJsTs: `"/hello/" + id + "/world"`,
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
