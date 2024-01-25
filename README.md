@@ -61,7 +61,7 @@ service 支持标签 @root，可用于设置url的前缀
 
 欢迎交流技术方法，邮箱：boringmanman@qq.com
 
-![微信](https://tyimage.tuyoo.com/8751a21462/gaoshuai/wx.jpg)
+<img src="https://tyimage.tuyoo.com/8751a21462/gaoshuai/wx.jpg" width="300px" height="auto">
 
 ## license
 
