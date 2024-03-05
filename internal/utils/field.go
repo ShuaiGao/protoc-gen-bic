@@ -70,6 +70,8 @@ func ParseFieldLeading(field *protogen.Field) *FieldParam {
 		if !strings.HasPrefix(kindName, "[]") {
 			kindName = "[]" + kindName
 		}
+	} else if field.Desc.IsMap() {
+		kindName = "object"
 	}
 	param.FType = kindName
 	return param
