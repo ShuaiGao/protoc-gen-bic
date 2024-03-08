@@ -29,7 +29,8 @@ func (fp *FieldParam) GetEnums() string {
 func ParseFieldLeading(field *protogen.Field) *FieldParam {
 	leading := field.Comments.Leading.String()
 	param := parseLeading(leading)
-	param.FName = JSONSnakeCase(field.GoName)
+	//param.FName = JSONSnakeCase(field.GoName)
+	param.FName = field.Desc.JSONName()
 	if !param.FRequired {
 		param.FRequired = strings.Contains(leading, Required)
 	}
