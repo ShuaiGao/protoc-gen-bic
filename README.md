@@ -8,7 +8,11 @@ protoc-gen-bic是一款强大、易用、优雅的接口生成工具。它设计
 
 1. 安装
 
-可在release中下载发布的 protoc-gen-bic 包
+```shell
+go install github.com/ShuaiGao/protoc-gen-bic@latest
+```
+
+或在release中下载发布的 protoc-gen-bic 包
 
 另外 protoc 文件下载地址 https://github.com/protocolbuffers/protobuf/releases/tag/v3.13.0
 
