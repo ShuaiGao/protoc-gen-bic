@@ -321,16 +321,21 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		for _, p := range httpParam.UrlParamList {
 			g.P("// @Param ", p.PName, " path ", p.PType, " true ", `"some id"`)
 		}
-		for _, ff := range value.Input.Fields {
-			query := "query"
-			if httpParam.MethodName == "POST" || httpParam.MethodName == "PATCH" {
-				query = "body"
-			}
-			fp := utils.ParseFieldLeading(ff)
-			if len(fp.FTail) > 0 {
-				g.P("// @Param ", fp.FName, " ", query, " ", fp.FType, " ", fp.FRequired, ` "`, fp.FTail, `" `, fp.GetEnums())
-			} else {
-				g.P("// @Param ", fp.FName, " ", query, " ", fp.FType, " ", fp.FRequired, ` "参数无注释" `, fp.GetEnums())
+
+		if httpParam.MethodName == "POST" || httpParam.MethodName == "PATCH" {
+			g.P(`// @Param data body `, value.Input.GoIdent.GoName, ` true "body 参数"`)
+		} else {
+			for _, ff := range value.Input.Fields {
+				query := "query"
+				if httpParam.MethodName == "POST" || httpParam.MethodName == "PATCH" {
+					query = "body"
+				}
+				fp := utils.ParseFieldLeading(ff)
+				if len(fp.FTail) > 0 {
+					g.P("// @Param ", fp.FName, " ", query, " ", fp.FType, " ", fp.FRequired, ` "`, fp.FTail, `" `, fp.GetEnums())
+				} else {
+					g.P("// @Param ", fp.FName, " ", query, " ", fp.FType, " ", fp.FRequired, ` "参数无注释" `, fp.GetEnums())
+				}
 			}
 		}
 
