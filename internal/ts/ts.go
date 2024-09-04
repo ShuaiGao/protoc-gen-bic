@@ -24,7 +24,7 @@ func GenerateTsFile(gen *protogen.Plugin, file *protogen.File, tsDir string) *pr
 	g.P("// versions: ", utils.VERSION)
 	g.P()
 	if len(file.Services) != 0 {
-		g.P("import request, { Response } from '@/utils/axiosReq'")
+		g.P("import { Response, request } from '@/utils/axiosReq'")
 	}
 	importMap := genTsPath(file)
 	for k, v := range importMap {
