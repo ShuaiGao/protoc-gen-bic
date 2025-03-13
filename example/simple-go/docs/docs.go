@@ -155,36 +155,12 @@ const docTemplate = `{
                 "summary": "添加用户",
                 "parameters": [
                     {
-                        "description": "主键ID",
-                        "name": "id",
+                        "description": "body 参数",
+                        "name": "data",
                         "in": "body",
+                        "required": true,
                         "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "body",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "邮箱",
-                        "name": "email",
-                        "in": "body",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "性别",
-                        "name": "sex",
-                        "in": "body",
-                        "schema": {
-                            "description": "性别",
-                            "type": "integer"
+                            "$ref": "#/definitions/api.User"
                         }
                     }
                 ],

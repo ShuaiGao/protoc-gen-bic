@@ -117,27 +117,12 @@ paths:
       - User-Service
     post:
       parameters:
-      - description: 主键ID
+      - description: body 参数
         in: body
-        name: id
+        name: data
+        required: true
         schema:
-          type: integer
-      - description: 用户名
-        in: body
-        name: username
-        schema:
-          type: string
-      - description: 邮箱
-        in: body
-        name: email
-        schema:
-          type: string
-      - description: 性别
-        in: body
-        name: sex
-        schema:
-          description: 性别
-          type: integer
+          $ref: '#/definitions/api.User'
       produces:
       - application/json
       responses:

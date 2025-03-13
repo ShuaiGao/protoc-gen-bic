@@ -132,6 +132,8 @@ func getTsFieldType(file *protogen.File, field *protogen.Field, required, isList
 			valueKindStr = "NotSupport"
 		}
 		return fmt.Sprintf("{[k :%s]: %s} | null", keyKind, valueKindStr)
+	} else if required {
+		return fmt.Sprintf("%s", kindName)
 	} else {
 		return fmt.Sprintf("(%s | null)", kindName)
 	}
