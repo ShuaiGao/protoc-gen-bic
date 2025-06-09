@@ -342,7 +342,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		if value.Output.GoIdent.GoName == "Empty" {
 			g.P("// @Success 200 {object} object null")
 		} else {
-			g.P("// @Success 200 {object} ", value.Output.GoIdent.GoName)
+			g.P("// @Success 200 {object} gen.Response{data=", value.Output.GoIdent.GoName, "}")
 		}
 		g.P(`// @Failure 401 {string} string "header need Authorization data"`)
 		g.P(`// @Failure 403 {string} string "no api permission or no obj permission"`)
