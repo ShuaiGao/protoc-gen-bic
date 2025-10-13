@@ -159,8 +159,6 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 		g.P(`"`, PermissionPkg, `"`)
 	}
 
-	g.P(`"net/http"`)
-
 	if needImportStrconv {
 		g.P(`"strconv"`)
 	}
@@ -225,6 +223,10 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 		g.P()
 		// 注册类型
 		g.P("type ", service.GoName, " interface {")
+		g.P("    HandleBindErr(ctx *gin.Context, err error)")
+		g.P("    HandleValidateErr(ctx *gin.Context, err error)")
+		g.P("    HandleUrlParamErr(ctx *gin.Context, err error)")
+		g.P("    HandleOut(ctx *gin.Context, out any, err error)")
 		genService(gen, file, g, service, omitempty)
 		g.P(" }")
 	}
@@ -342,7 +344,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 		if value.Output.GoIdent.GoName == "Empty" {
 			g.P("// @Success 200 {object} object null")
 		} else {
-			g.P("// @Success 200 {object} gen.Response{data=", value.Output.GoIdent.GoName, "}")
+			g.P("// @Success 200 {object} api.Response{data=", value.Output.GoIdent.GoName, "}")
 		}
 		g.P(`// @Failure 401 {string} string "header need Authorization data"`)
 		g.P(`// @Failure 403 {string} string "no api permission or no obj permission"`)
@@ -359,20 +361,13 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 			} else {
 				g.P("  if err := ctx.ShouldBindJSON(req); err != nil {")
 			}
-			g.P(` 	  ctx.JSON(http.StatusBadRequest, gin.H{"code": 400, "detail":"request error"})`)
+			g.P(` 	  x.xx.HandleBindErr(ctx, err)`)
 			g.P("     return")
 			g.P("   }")
 
 			if AutoValidate {
 				g.P("if err := ", getValidateName(service.GoName), ".Struct(req); err != nil {")
-				g.P(`    msg := "request param validator error"`)
-				g.P("    if gin.Mode() == gin.DebugMode {")
-				g.P(` 	      msg = msg + " | " + err.Error()`)
-				g.P("    }")
-				g.P("    ctx.JSON(http.StatusBadRequest, gin.H{")
-				g.P(`        "code": 400,`)
-				g.P(`        "detail": msg,`)
-				g.P("    })")
+				g.P(` 	  x.xx.HandleValidateErr(ctx, err)`)
 				g.P("    return")
 				g.P("}")
 			}
@@ -394,10 +389,7 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 						g.P("if err != nil {")
 						paramList = append(paramList, p.PName)
 					}
-					g.P("    ctx.JSON(http.StatusBadRequest, gin.H{")
-					g.P(`        "code": 400,`)
-					g.P(`        "detail": "param `, p.PName, ` should be int",`)
-					g.P("    })")
+					g.P(` 	  x.xx.HandleUrlParamErr(ctx, err)`)
 					g.P("    return")
 					g.P("}")
 				} else if p.PType == utils.StringType {
@@ -406,24 +398,20 @@ func genXService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generate
 				}
 			}
 			if !httpParam.Void {
-				g.P("rsp, errCode := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
+				g.P("rsp, err := ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ", ", strings.Join(paramList, ", "), ")")
 			}
 		} else {
 			if !httpParam.Void {
-				g.P("rsp, errCode := ", "x.xx.", value.GoName, "(ctx", req, ")")
+				g.P("rsp, err := ", "x.xx.", value.GoName, "(ctx", req, ")")
 			} else {
 				g.P("_, _ = ", "x.xx.", value.GoName, "(ctx", req, ")")
 			}
 		}
 		if !httpParam.Void {
 			g.P("")
-			g.P("ctx.JSON(http.StatusOK, gin.H{")
-			g.P(`    "code": errCode.Code(),`)
-			g.P(`    "detail": errCode.String(),`)
-			g.P(`    "data": rsp,`)
-			g.P("})")
+			g.P("x.xx.HandleOut(ctx, rsp, err)")
 		}
 		g.P("}")
 		g.P()
@@ -446,9 +434,9 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 			for _, p := range httpParam.UrlParamList {
 				paramList = append(paramList, p.PName+" "+p.PType)
 			}
-			g.P(value.GoName, "(ctx *gin.Context ", inParam, ", ", strings.Join(paramList, ", "), ")", "(out ", "*", value.Output.GoIdent, ",code ErrCode", " )")
+			g.P(value.GoName, "(ctx *gin.Context ", inParam, ", ", strings.Join(paramList, ", "), ")", "(out ", "*", value.Output.GoIdent, ",err error", " )")
 		} else {
-			g.P(value.GoName, "(ctx *gin.Context ", inParam, ")", "(out ", "*", value.Output.GoIdent, ",code ErrCode", " )")
+			g.P(value.GoName, "(ctx *gin.Context ", inParam, ")", "(out ", "*", value.Output.GoIdent, ",err error", " )")
 		}
 	}
 }
